@@ -18,25 +18,28 @@ mkdir $shdir/msgbuff/banip
 mkdir $shdir/msgbuff/unbanip
 mkdir $shdir/msgbuff/ban
 mkdir $shdir/msgbuff/unban
-comm -13 <(sort -d $shdir/old.txt) <(sort -d $shdir/new.txt) > $shdir/checkone.txt
+
+#Git output marks new banned domains as + and the unbanned ones as - . So script remove the first line of git output and the first character '-' or '+' 
+#grep removes first character of the line and tail removes first line of output
+git diff $shdir/old.txt $shdir/new.txt | grep ^+ | sed 's/^.//' | tail -n +2 > $shdir/checkone.txt
 	echo "**В СПИСОК ОГРАНИЧЕННЫХ РЕСУРСОВ СЕГОДНЯ ПОПАЛИ:**" > $shdir/bansite.txt
 	echo "**$qdate**" >> $shdir/bansite.txt
-	comm -13 <(sort -d $shdir/old.txt) <(sort -d $shdir/new.txt) >> $shdir/bansite.txt #New Banned Domains
+	cat $shdir/checkone.txt >> $shdir/bansite.txt #New Banned Domains
 	split -C 3900 $shdir/bansite.txt $shdir/msgbuff/ban/0x
-comm -23 <(sort -d $shdir/old.txt) <(sort -d $shdir/new.txt) > $shdir/checktwo.txt
+git diff $shdir/old.txt $shdir/new.txt | grep ^- | sed 's/^.//' | tail -n +2 > $shdir/checktwo.txt
 	echo "**Удалены из базы данных (Возможно, разблокированны):**" > $shdir/unbansite.txt
 	echo "**$qdate**" >> $shdir/unbansite.txt
-	comm -23 <(sort -d $shdir/old.txt) <(sort -d $shdir/new.txt) >> $shdir/unbansite.txt #New Unbanned Domains
+	cat $shdir/checktwo.txt >> $shdir/unbansite.txt #New Unbanned Domains
 	split -C 3900 $shdir/unbansite.txt $shdir/msgbuff/unban/0x
-comm -13 <(sort -d $shdir/oldip.txt) <(sort -d $shdir/newip.txt) > $shdir/checkthree.txt
-	comm -13 <(sort -d $shdir/oldip.txt) <(sort -d $shdir/newip.txt) > $shdir/banip.txt #New Banned CIDR
+git diff $shdir/oldip.txt $shdir/newip.txt | grep ^+ | sed 's/^.//' | tail -n +2 > $shdir/checkthree.txt
+	cat $shdir/checkthree.txt > $shdir/banip.txt #New Banned CIDR
 	sort -R $shdir/banip.txt | split -C 3900 - $shdir/msgbuff/banip/0x
-comm -23 <(sort -d $shdir/oldip.txt) <(sort -d $shdir/newip.txt) > $shdir/checkfour.txt
-	comm -23 <(sort -d $shdir/oldip.txt) <(sort -d $shdir/newip.txt) > $shdir/unbanip.txt #New Unbanned CIDR
+git diff $shdir/oldip.txt $shdir/newip.txt | grep ^- | sed 's/^.//' | tail -n +2 > $shdir/checkfour.txt
+	cat $shdir/checkfour.txt > $shdir/unbanip.txt #New Unbanned CIDR
 	sort -R $shdir/unbanip.txt | split -C 3900 - $shdir/msgbuff/unbanip/0x
-sleep 5
+sleep 2
 chmod 777 $shdir/*
-sleep 5
+sleep 2
 
 #Set Vars
 send=$jsdir/send.txt
