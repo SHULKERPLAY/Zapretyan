@@ -1,13 +1,6 @@
 #!/bin/bash
-
-#Path to shell scripts and temp files directory
-shdir=/root/lunarcontroller
-
-#Path to discord javascript files directory
-jsdir=/root/discord-RKN
-
-#Date variable e.g 24/02/25
-qdate=$(date +%d/%m/%y)
+bashdir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+. $bashdir/config.cfg
 
 #Download And Sort
 wget -t 5 -O $shdir/v2ray.zip https://github.com/Nidelon/ru-block-v2ray-rules/archive/refs/heads/release.zip
@@ -66,12 +59,27 @@ rndipunbancnt=$(wc -l < $shdir/msgbuff/unbanip/0xaa)
 totalbanned=$(wc -l < $shdir/new.txt)
 totalipbanned=$(wc -l < $shdir/newip.txt)
 
-#Send List of new domain Bans
-echo "Заблокированные сегодня домены" > $fieldname
-echo "1321886098607050984" > $channelid
+#data collecting v1.0
+#Date;banned;unbanned;total
 if [ "$banbytes" -le "2" ]; then
-	echo -e "\n *В сегодняшнем списке нет новых заблокированных ресурсов... Скорее всего, это ошибка. Но кто знает...* <@&683823927851614242>" > $send
-	$jsdir/send.sh && sleep 2
+	bancount=0
+fi
+if [ "$unbanbytes" -le "2" ]; then
+	unbancount=0
+fi
+echo -e "$csvdate ; $bancount ; $unbancount ; $totalbanned" >> $shdir/analytics.csv
+
+#Send List of new domain Bans
+if [ "$isban" = true ]; then
+echo "Заблокированные сегодня домены" > $fieldname
+echo "$bancid" > $channelid
+if [ "$banbytes" -le "2" ]; then
+    if [ "$errorsend" = true ]; then
+        echo -e "\n *В сегодняшнем списке нет новых заблокированных ресурсов... Скорее всего, это ошибка. Но кто знает...* $errorping" > $send
+        $jsdir/send.sh && sleep 2
+    else
+        sleep 2
+    fi
 else
 	for file1 in $shdir/msgbuff/ban/*
 		do
@@ -80,28 +88,41 @@ else
 	echo -e "**:fire: Сегодня заблокированно доменов:__ $bancount __!** \n :no_entry_sign: Всего заблокированно:__ $totalbanned __" > $send
 	$jsdir/send.sh && sleep 2
 fi
+fi
+
 #Unban check
+if [ "$isunban" = true ]; then
 echo "Разблокированные сегодня домены" > $fieldname
-echo "1322551019162308699" > $channelid
+echo "$unbancid" > $channelid
 if [ "$unbanbytes" -le "2" ]; then
-	echo -e "\n *Никого не разблокировали... Скорее всего, это ошибка. Но кто знает...* <@&683823927851614242>" > $send
-	$jsdir/send.sh && sleep 2
-	else
-		#Send Unban List
-		for file2 in $shdir/msgbuff/unban/*
-			do
-			cat "$file2" > $send && $jsdir/sendembed.sh && sleep 2
-			done
+	if [ "$errorsend" = true ]; then
+        echo -e "\n *Никого не разблокировали... Скорее всего, это ошибка. Но кто знает...* $errorping" > $send
+        $jsdir/send.sh && sleep 2
+    else
+        sleep 2
+    fi
+else
+    #Send Unban List
+    for file2 in $shdir/msgbuff/unban/*
+        do
+        cat "$file2" > $send && $jsdir/sendembed.sh && sleep 2
+        done
 echo -e "**:large_blue_diamond: Сегодня разблокированно доменов:__ $unbancount __! :large_blue_diamond:**" > $send
 $jsdir/send.sh && sleep 2
 fi
+fi
 
 #Send today's CIDR banlist
+if [ "$isbanip" = true ]; then
 echo "Заблокированные сегодня наборы адресов" > $fieldname
-echo "1322551051244539964" > $channelid
+echo "$banipcid" > $channelid
 if [ "$banipbytes" -le "2" ]; then
-	echo -e "*В сегодняшнем списке нет новых заблокированных наборов адресов... Скорее всего, это ошибка. Но кто знает...*  <@&683823927851614242>" > $send
-	$jsdir/send.sh && sleep 2
+    if [ "$errorsend" = true ]; then
+        echo -e "*В сегодняшнем списке нет новых заблокированных наборов адресов... Скорее всего, это ошибка. Но кто знает...*  $errorping" > $send
+        $jsdir/send.sh && sleep 2
+    else
+        sleep 2
+    fi
 else
 	echo "**СПИСОК СЛУЧАЙНЫХ__ $rndipbancnt __ ЗАБЛОКИРОВАННЫХ СЕГОДНЯ CIDR:**" > $send
 	echo "**$qdate**" >> $send
@@ -110,12 +131,19 @@ else
 	echo -e "**:x: Обновлено CIDR записей:__ $banipcount __!** \n :anger: Всего заблокировано:__ $totalipbanned __" > $send
 	$jsdir/send.sh && sleep 2
 fi
+fi
+
 #Unban Check
+if [ "$isunbanip" = true ]; then
 echo "Разблокированные сегодня наборы адресов" > $fieldname
-echo "1322551086178893876" > $channelid
+echo "$unbanipcid" > $channelid
 if [ "$unbanipbytes" -le "2" ]; then
-	echo -e "*В сегодняшнем списке нет разблокированных CIDR... Скорее всего, это ошибка. Но кто знает...*  <@&683823927851614242>" > $send
-	$jsdir/send.sh && sleep 2
+    if [ "$errorsend" = true ]; then
+        echo -e "*В сегодняшнем списке нет разблокированных CIDR... Скорее всего, это ошибка. Но кто знает...*  $errorping" > $send
+        $jsdir/send.sh && sleep 2
+    else
+        sleep 2
+    fi
 else
 	#Send CIDR unban List
 	echo "**Случайные__ $rndipunbancnt __ CIDR, удалённые из базы данных (Возможно, разблокированные):**" > $send
@@ -123,7 +151,9 @@ else
 	cat $shdir/msgbuff/unbanip/0xaa >> $send && $jsdir/sendembed.sh && sleep 2
 	echo -e "**:green_circle: Сегодня разблокированно__ $unbanipcount __ CIDR! :green_circle:**" > $send
 	$jsdir/send.sh && sleep 2
-fi       
+fi
+fi
+  
 #Cleanup
 rm $shdir/v2ray.zip
 rm $shdir/checkone.txt
