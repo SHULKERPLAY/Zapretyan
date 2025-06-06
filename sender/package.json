@@ -1,0 +1,14 @@
+{
+  "name": "discord-rkn",
+  "version": "1.0.0",
+  "description": "Ban Monitor For Discord",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "SHULKERPLAY",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "discord.js": "^14.6.0"
+  }
+}
