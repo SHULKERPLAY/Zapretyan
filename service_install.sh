@@ -21,7 +21,7 @@ sleep 2
 clear
 
 echo Enter absolute path where zapretyan will be and we prepare all for you
-echo (If you want to change path to dir in the future, you will need to change them in config.cfg)
+echo If you want to change path to dir in the future, you will need to change them in config.cfg
 echo e.g. /root/zapretyan
 read installpath
 
@@ -36,10 +36,10 @@ sleep 2
 clear
 
 while true; do
-    echo Zapretyan requires nodejs, npm, git, wget
-    read -p "Do you want to install dependencies? (~430 MB of additional disk space can be used) Y/N" yn
+    echo Zapretyan requires fnm, nodejs, npm, git, wget
+    read -p "Do you want to install dependencies? (Up to 430 MB of additional disk space can be used) Y/N" yn
     case $yn in
-        [Yy]* ) apt install nodejs npm git wget -y; break;;
+        [Yy]* ) apt update && apt install npm git wget -y && curl -o- https://fnm.vercel.app/install | bash && fnm install 24; break;;
         [Nn]* ) break;;
         * ) echo "Please answer yes or no.";;
     esac
@@ -52,7 +52,7 @@ echo You need wget to download this
 while true; do
     read -p "Do you want to download v2dat decompiler? (Optional)(9.6 MB) Y/N" yn
     case $yn in
-        [Yy]* ) wget -t 5 -O shell/v2dat https://github.com/SHULKERPLAY/Zapretyan/raw/refs/heads/main/bin/v2dat; break;;
+        [Yy]* ) wget -t 5 -O shell/v2dat 'https://github.com/SHULKERPLAY/Zapretyan/raw/refs/heads/main/bin/v2dat'; break;;
         [Nn]* ) break;;
         * ) echo "Please answer yes or no.";;
     esac
@@ -66,11 +66,11 @@ sleep 10
         echo Found node modules. Skipping...
     else
         echo Downloading node modules...
-		wget -t 5 -O sender/node.tar https://www.dropbox.com/scl/fi/6ug26cl0h5bx8vfrgr2kf/node_modules.tar?rlkey=dpr2vqn2hbeqrzm0d20ikxjf7&e=2&st=llm6v7x8&dl=1
+		wget -t 5 -O sender/node.tar 'https://www.dropbox.com/scl/fi/6ug26cl0h5bx8vfrgr2kf/node_modules.tar?rlkey=dpr2vqn2hbeqrzm0d20ikxjf7&e=2&st=llm6v7x8&dl=1'
 		tar -xf sender/node.tar -C sender
 		rm sender/node.tar
     fi
-	
+
 echo Moving shell to install path...
 mv shell $installpath
 echo Moving sender to install path...
@@ -113,6 +113,8 @@ mv zapretyan.service /etc/systemd/system
 mv zapretyan.timer /etc/systemd/system
 echo Enabling timer
 systemctl enable zapretyan.timer
+systemctl start zapretyan.timer
 
 echo -e "\n\n\nDone!\nEdit /etc/systemd/system/zapretyan.timer if you want to change time when checks are starting (Default: 8 AM).\nType 'systemctl status zapretyan.timer' to check if installation complete.\nsystemctl disable zapretyan.timer to stop service."
 echo -e "Now you need to edit $installpath/shell/config.cfg to enable notifications and setup your Discord channels ID"
+echo -e "AND INSERT YOUR BOT TOKEN IN $installpath/sender/config.json"

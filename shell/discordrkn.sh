@@ -14,12 +14,12 @@ if [ "$sources" = "antifilter" ]; then
     rm $shdir/oldip.txt
     mv $shdir/new.txt $shdir/old.txt
     mv $shdir/newip.txt $shdir/oldip.txt
-    wget -t 5 -T 300 -O $shdir/new.txt https://antifilter.download/list/domains.lst
-    wget -t 5 -T 300 -O $shdir/newip.txt https://antifilter.download/list/ip.lst
+    wget -t 5 -T 300 -O $shdir/new.txt 'https://antifilter.download/list/domains.lst'
+    wget -t 5 -T 300 -O $shdir/newip.txt 'https://antifilter.download/list/ip.lst'
 fi
     
 if [ "$sources" = "github" ]; then
-    wget -t 5 -O $shdir/v2ray.zip https://github.com/Nidelon/ru-block-v2ray-rules/archive/refs/heads/release.zip
+    wget -t 5 -O $shdir/v2ray.zip 'https://github.com/Nidelon/ru-block-v2ray-rules/archive/refs/heads/release.zip'
     unzip -o $shdir/v2ray.zip -d $shdir/
     $shdir/v2dat unpack geosite -o $shdir/ $shdir/ru-block-v2ray-rules-release/geosite.dat
     $shdir/v2dat unpack geoip -o $shdir/ $shdir/ru-block-v2ray-rules-release/geoip.dat
