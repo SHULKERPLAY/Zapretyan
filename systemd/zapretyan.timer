@@ -1,0 +1,9 @@
+[Unit]
+Description=Trigger for Zapretyan - Russia internet bans notifier
+
+[Timer]
+Persistent=true
+OnCalendar=Mon..Sun *-*-* 08:00:00
+
+[Install]
+WantedBy=timers.target

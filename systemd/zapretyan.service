@@ -1,0 +1,5 @@
+[Unit]
+Description=Zapretyan - Russia internet bans notifier
+
+[Service]
+ExecStart=/bin/bash /path/zapretyan/discordrkn.sh

@@ -1,7 +1,9 @@
 #!/bin/bash
-
+echo discordrkn-retest v1.1
 #Repeat today's send
+echo detecting directory
 bashdir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+echo cleanup
 . $bashdir/config.cfg
 rm $shdir/v2ray.zip
 rm $shdir/checkone.txt
@@ -19,5 +21,5 @@ rm $bashdir/new.txt
 rm $bashdir/newip.txt
 mv $bashdir/old.txt $bashdir/new.txt
 mv $bashdir/oldip.txt $bashdir/newip.txt
-
+echo done. Executing discordrkn.sh
 $bashdir/discordrkn.sh

@@ -140,7 +140,7 @@ echo "Заблокированые сегодня домены" > $fieldname
 echo "$bancid" > $channelid
 if [ "$banbytes" -le "2" ]; then
     if [ "$errorsend" = true ]; then
-        echo -e "\n *В сегодняшнем списке нет новых заблокированых ресурсов... Скорее всего, это ошибка. Но кто знает...* $errorping" > $send
+        echo -e "\n :orange_book: *В сегодняшнем списке нет новых заблокированых ресурсов!* $errorping" > $send
         $jsdir/send.sh && sleep 2
     else
         sleep 2
@@ -161,7 +161,7 @@ echo "Разблокированые сегодня домены" > $fieldname
 echo "$unbancid" > $channelid
 if [ "$unbanbytes" -le "2" ]; then
 	if [ "$errorsend" = true ]; then
-        echo -e "\n *Никого не разблокировали... Скорее всего, это ошибка. Но кто знает...* $errorping" > $send
+        echo -e "\n :orange_book: *Сегодня никого не разблокировали!* $errorping" > $send
         $jsdir/send.sh && sleep 2
     else
         sleep 2
@@ -189,10 +189,10 @@ echo "$banipcid" > $channelid
 if [ "$banipbytes" -le "2" ]; then
     if [ "$errorsend" = true ]; then
         if [ "$sources" = "antifilter" ]; then
-            echo -e "*В сегодняшнем списке нет новых заблокированых IP адресов... Скорее всего, это ошибка. Но кто знает...*  $errorping" > $send
+            echo -e ":orange_book: *В сегодняшнем списке нет новых заблокированых IP адресов!*  $errorping" > $send
         fi
         if [ "$sources" = "github" ]; then
-            echo -e "*В сегодняшнем списке нет новых заблокированых наборов адресов... Скорее всего, это ошибка. Но кто знает...*  $errorping" > $send
+            echo -e "*:orange_book: *В сегодняшнем списке нет новых заблокированых наборов адресов!*  $errorping" > $send
         fi
         $jsdir/send.sh && sleep 2
     else
@@ -230,10 +230,10 @@ echo "$unbanipcid" > $channelid
 if [ "$unbanipbytes" -le "2" ]; then
     if [ "$errorsend" = true ]; then
         if [ "$sources" = "antifilter" ]; then
-            echo -e "*В сегодняшнем списке нет разблокированых IP адресов... Скорее всего, это ошибка. Но кто знает...*  $errorping" > $send
+            echo -e ":orange_book: *В сегодняшнем списке нет разблокированых IP адресов!*  $errorping" > $send
         fi
         if [ "$sources" = "github" ]; then
-            echo -e "*В сегодняшнем списке нет разблокированых CIDR... Скорее всего, это ошибка. Но кто знает...*  $errorping" > $send
+            echo -e ":orange_book: *В сегодняшнем списке нет разблокированых CIDR!*  $errorping" > $send
         fi
         $jsdir/send.sh && sleep 2
     else
