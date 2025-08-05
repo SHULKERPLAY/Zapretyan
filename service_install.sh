@@ -2,6 +2,9 @@
 bashdir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 . $bashdir/config.cfg
 
+#Uncomment it after release
+#wget -O Zapretyan.tar 'https://www.dropbox.com/scl/fi/gwraahaap32m7sm8mflox/Zapretyan.tar?rlkey=yjs2nfddzi6q60eraitqj1j0i&st=ezht7085&dl=1' && tar -xf Zapretyan.tar && rm Zapretyan.tar
+
 echo -e "Found $bashdir"
 echo Script uses relative paths - Checking files
 if [ -e $bashdir/sender/send.js ]; then
@@ -35,11 +38,12 @@ fi
 sleep 2
 clear
 
+#curl -o- https://fnm.vercel.app/install | bash && source /root/.bashrc && fnm install 24
 while true; do
-    echo Zapretyan requires fnm, nodejs, npm, git, wget
+    echo Zapretyan requires nodejs, npm, git, wget
     read -p "Do you want to install dependencies? (Up to 430 MB of additional disk space can be used) Y/N" yn
     case $yn in
-        [Yy]* ) apt update && apt install npm git wget -y && curl -o- https://fnm.vercel.app/install | bash && fnm install 24; break;;
+        [Yy]* ) apt update && apt install npm nodejs git wget -y; break;;
         [Nn]* ) break;;
         * ) echo "Please answer yes or no.";;
     esac
