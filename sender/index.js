@@ -1,8 +1,8 @@
 //Set Timeout to stop script
-setTimeout(online, 86400000)
-function online() {
-throw new Error("ScriptTimeout");
-}
+//setTimeout(online, 86400000)
+//function online() {
+//throw new Error("ScriptTimeout");
+//}
 
 // Require the necessary discord.js classes
 const { Client, Events, GatewayIntentBits, ActivityType, setPrestnce } = require('discord.js');
