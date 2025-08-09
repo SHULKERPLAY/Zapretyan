@@ -6,6 +6,7 @@ if [ -d $bashdir/sender ]; then
     echo -e "Found sender. Skipping download"
 else
     wget -t 5 -O Zapretyan.tar 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.1/zapretyan.tar' && tar -xf Zapretyan.tar && rm Zapretyan.tar
+fi
 
 echo -e "Found $bashdir"
 echo Script uses relative paths - Checking files
