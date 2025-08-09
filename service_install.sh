@@ -2,8 +2,10 @@
 bashdir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 . $bashdir/config.cfg
 
-#Uncomment it after release
-#wget -O Zapretyan.tar 'https://www.dropbox.com/scl/fi/gwraahaap32m7sm8mflox/Zapretyan.tar?rlkey=yjs2nfddzi6q60eraitqj1j0i&st=ezht7085&dl=1' && tar -xf Zapretyan.tar && rm Zapretyan.tar
+if [ -d $bashdir/sender ]; then
+    echo -e "Found sender. Skipping download"
+else
+    wget -t 5 -O Zapretyan.tar 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.1/zapretyan.tar' && tar -xf Zapretyan.tar && rm Zapretyan.tar
 
 echo -e "Found $bashdir"
 echo Script uses relative paths - Checking files
