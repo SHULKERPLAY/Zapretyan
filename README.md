@@ -1,4 +1,4 @@
-![Запретян <3](https://github.com/SHULKERPLAY/Zapretyan/blob/Zapretyan/zapretyanrepo.png)
+![Запретян <3](https://github.com/SHULKERPLAY/Zapretyan/blob/main/zapretyanrepo.png)
 > Readme is only available in russian
 
 # Запретян / Zapretyan
