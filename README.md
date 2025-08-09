@@ -3,6 +3,7 @@
 
 # Запретян / Zapretyan
 [![CodeFactor](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/badge/main)](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/overview/main) ![GitHub Release](https://img.shields.io/github/v/release/shulkerplay/zapretyan) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/shulkerplay/zapretyan) ![Discord](https://img.shields.io/discord/683814496942424078?label=Discord) ![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UCWoypHEOaTh6N9zwCtRzr0w) 
+
 **Вывод новых блокировок ресурсов в Российской Федерации каждый день!**  
 
 Запретян - это набор скриптов работающий на Debian/Ubuntu, который собирает данные о блокировках и сравнивает их с предыдущими сохранёнными данными.  
@@ -34,7 +35,7 @@
   
 Скачайте архив из последнего релиза  
 
-    wget -O zapretyan.tar 'https://ждёмрелиз'
+    wget -O zapretyan.tar 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.1/zapretyan.tar'
 
   
 Или скачайте архив репозитория  
@@ -364,6 +365,7 @@
 [Тут вы сможете найти возможные значения](https://discord-api-types.dev/api/discord-api-types-v10/enum/ActivityType)
 
 Статусы меняются в следующей строке `status: 'idle',`
+
 [О статусах в DiscordJS](https://discord.js.org/docs/packages/discord.js/main/PresenceStatus:TypeAlias)
 
 Буду рад любой поддержке, связаться со мной можно на [нашем сервере Discord](https://discord.gg/e2HcXrQ)
