@@ -1,11 +1,11 @@
-
+![Запретян <3](https://github.com/SHULKERPLAY/Zapretyan/blob/Zapretyan/zapretyanrepo.png)
 > Readme is only available in russian
-# Запретян / Zapretyan
 
+# Запретян / Zapretyan
+[![CodeFactor](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/badge/main)](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/overview/main) ![GitHub Release](https://img.shields.io/github/v/release/shulkerplay/zapretyan) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/shulkerplay/zapretyan) ![Discord](https://img.shields.io/discord/683814496942424078?label=Discord) ![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UCWoypHEOaTh6N9zwCtRzr0w) 
 **Вывод новых блокировок ресурсов в Российской Федерации каждый день!**  
-  
+
 Запретян - это набор скриптов работающий на Debian/Ubuntu, который собирает данные о блокировках и сравнивает их с предыдущими сохранёнными данными.  
-  
 
 ## Функции
  - Сбор аналитики: Дата и количество блокировок/разбанов
@@ -278,7 +278,7 @@
     cd shell
     wget -t 5 -O v2dat 'https://github.com/SHULKERPLAY/Zapretyan/raw/refs/heads/main/bin/v2dat'
 
-errorping='<@&000000000000000>' - Содержит пинг участника или роли при выводе сервисных сообщений. Оставьте `errorping=' '` чтобы отключить упоминания. У DIscord пинги имеют форму:
+`errorping='<@&000000000000000>'` - Содержит пинг участника или роли при выводе сервисных сообщений. Оставьте `errorping=' '` чтобы отключить упоминания. У Discord пинги имеют форму:
 Для пользователей - `<@idПользователя>`
 Для ролей - `<@&idРоли>`
 Также вы можете оставить несколько пингов в это значение 
@@ -358,7 +358,9 @@ errorping='<@&000000000000000>' - Содержит пинг участника �
 Меняются параметры под `client.user.setPresence({`
 
 Активность меняется в строчке 
-`activities: [{ name: `обходе блокировок`, type: ActivityType.Competing }],`
+
+    activities: [{ name: `обходе блокировок`, type: ActivityType.Competing }],
+
 [Тут вы сможете найти возможные значения](https://discord-api-types.dev/api/discord-api-types-v10/enum/ActivityType)
 
 Статусы меняются в следующей строке `status: 'idle',`
