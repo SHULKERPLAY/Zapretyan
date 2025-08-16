@@ -150,7 +150,7 @@ else
 		do
 		cat "$file1" > $send && $jsdir/sendembed.sh && sleep 2
 		done
-	echo -e "**:fire: Сегодня заблокировано доменов:__ $bancount __!** \n :no_entry_sign: Всего заблокировано:__ $totalbanned __" > $send
+	echo -e "**:fire: Сегодня заблокировано доменов:__ $bancount __!** \n:no_entry_sign: Всего заблокировано:__ $totalbanned __" > $send
 	$jsdir/send.sh && sleep 2
 fi
 fi
@@ -209,10 +209,10 @@ else
 	cat $shdir/msgbuff/banip/0xaa >> $send && $jsdir/sendembed.sh
 	sleep 5
     if [ "$sources" = "antifilter" ]; then
-        echo -e "**:x: Заблокировано IP адресов:__ $banipcount __!** \n :anger: Всего заблокировано:__ $totalipbanned __" > $send
+        echo -e "**:x: Заблокировано IP адресов:__ $banipcount __!** \n:anger: Всего заблокировано:__ $totalipbanned __" > $send
     fi
     if [ "$sources" = "github" ]; then
-        echo -e "**:x: Обновлено CIDR записей:__ $banipcount __!** \n :anger: Всего заблокировано:__ $totalipbanned __" > $send
+        echo -e "**:x: Обновлено CIDR записей:__ $banipcount __!** \n:anger: Всего заблокировано:__ $totalipbanned __" > $send
     fi
 	$jsdir/send.sh && sleep 2
 fi
