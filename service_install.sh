@@ -29,7 +29,7 @@ clear
 echo Enter absolute path where zapretyan will be and we prepare all for you
 echo If you want to change path to dir in the future, you will need to change them in config.cfg
 echo e.g. /root/zapretyan
-read installpath
+read -r installpath
 
 mkdir $installpath
 if [ -d $installpath ]; then
@@ -44,7 +44,7 @@ clear
 #curl -o- https://fnm.vercel.app/install | bash && source /root/.bashrc && fnm install 24
 while true; do
     echo Zapretyan requires nodejs, npm, git, wget
-    read -p "Do you want to install dependencies? (Up to 430 MB of additional disk space can be used) Y/N" yn
+    read -r -p "Do you want to install dependencies? (Up to 430 MB of additional disk space can be used) Y/N" yn
     case $yn in
         [Yy]* ) apt update && apt install npm nodejs git wget -y; break;;
         [Nn]* ) break;;
@@ -57,7 +57,7 @@ clear
 echo If you change the method of parsing bans from antifilter to github, you will need additional binary to unpack .dat routing files
 echo You need wget to download this
 while true; do
-    read -p "Do you want to download v2dat decompiler? (Optional)(9.6 MB) Y/N" yn
+    read -r -p "Do you want to download v2dat decompiler? (Optional)(9.6 MB) Y/N" yn
     case $yn in
         [Yy]* ) wget -t 5 -O shell/v2dat 'https://github.com/SHULKERPLAY/Zapretyan/raw/refs/heads/main/bin/v2dat'; break;;
         [Nn]* ) break;;

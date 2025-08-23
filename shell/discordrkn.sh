@@ -62,6 +62,7 @@ git diff $shdir/oldip.txt $shdir/newip.txt | grep ^- | sed 's/^.//' | tail -n +2
 send=$jsdir/send.txt
 channelid=$jsdir/var/cid
 fieldname=$jsdir/var/name
+embedcolor=$jsdir/var/clr
 new=$shdir/new.txt
 old=$shdir/old.txt
 newip=$shdir/newip.txt
@@ -138,6 +139,7 @@ fi
 if [ "$isban" = true ]; then
 echo "Заблокированые сегодня домены" > $fieldname
 echo "$bancid" > $channelid
+echo "$banclr" > $embedcolor
 if [ "$banbytes" -le "2" ]; then
     if [ "$errorsend" = true ]; then
         echo -e "\n :orange_book: *В сегодняшнем списке нет новых заблокированых ресурсов!* $errorping" > $send
@@ -159,6 +161,7 @@ fi
 if [ "$isunban" = true ]; then
 echo "Разблокированые сегодня домены" > $fieldname
 echo "$unbancid" > $channelid
+echo "$unbanclr" > $embedcolor
 if [ "$unbanbytes" -le "2" ]; then
 	if [ "$errorsend" = true ]; then
         echo -e "\n :orange_book: *Сегодня никого не разблокировали!* $errorping" > $send
@@ -186,6 +189,7 @@ if [ "$isbanip" = true ]; then
         echo "Заблокированые сегодня наборы адресов" > $fieldname
     fi
 echo "$banipcid" > $channelid
+echo "$banipclr" > $embedcolor
 if [ "$banipbytes" -le "2" ]; then
     if [ "$errorsend" = true ]; then
         if [ "$sources" = "antifilter" ]; then
@@ -227,6 +231,7 @@ if [ "$sources" = "github" ]; then
     echo "Разблокированые сегодня наборы адресов" > $fieldname
 fi
 echo "$unbanipcid" > $channelid
+echo "$unbanipclr" > $embedcolor
 if [ "$unbanipbytes" -le "2" ]; then
     if [ "$errorsend" = true ]; then
         if [ "$sources" = "antifilter" ]; then

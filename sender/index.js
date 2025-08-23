@@ -1,9 +1,3 @@
-//Set Timeout to stop script
-//setTimeout(online, 86400000)
-//function online() {
-//throw new Error("ScriptTimeout");
-//}
-
 // Require the necessary discord.js classes
 const { Client, Events, GatewayIntentBits, ActivityType, setPrestnce } = require('discord.js');
 const { token } = require('./config.json');
@@ -11,7 +5,12 @@ const { token } = require('./config.json');
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-// When the client is ready, run this code (only once).
+// Debug with
+// bot.on('error', (e) => console.error(e));
+// bot.on('warning', (e) => console.warn(e));
+// bot.on('debug', (e) => console.info(e));
+
+// When the client is ready, run client.once.
 // The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
 // It makes some properties non-nullable.
 client.once(Events.ClientReady, readyClient => {

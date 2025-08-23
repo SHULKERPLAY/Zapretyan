@@ -11,7 +11,7 @@ do
 #             echo
 #        fi
         if [ "$timecurrent" -eq "0505" ]; then
-             /h/h/index.sh & echo done
+             /h/h/index.sh & echo 'done'
         else
              echo
         fi
