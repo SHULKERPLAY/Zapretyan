@@ -7,6 +7,19 @@ function online() {
 throw new Error("ScriptTimeout");
 }
 
+//read content from file
+fs.readFile(path.join(__dirname,'sendprivate.txt'), 'utf8', (err, data) => {
+  if (err) {
+    console.error(err);
+    return;
+  }
+//read destination user id from file
+fs.readFile(path.join(__dirname,'var/cid'), 'utf8', (err, cid) => {
+  if (err) {
+    console.error(err);
+    return;
+}
+
 // Require the necessary discord.js classes
 const { ActivityType, Client, Events, GatewayIntentBits, Channels, Channel, Send } = require('discord.js');
 const { token } = require('./config.json');
@@ -21,18 +34,6 @@ client.once(Events.ClientReady, readyClient => {
 client.login(token).then((token) => {
 // client.user is now defined
 
-//read content from file
-fs.readFile(path.join(__dirname,'sendprivate.txt'), 'utf8', (err, data) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-//read destination user id from file
-fs.readFile(path.join(__dirname,'var/cid'), 'utf8', (err, cid) => {
-  if (err) {
-    console.error(err);
-    return;
-}
   client.users.fetch(cid).then(user => {
   user.send(data);
 });
