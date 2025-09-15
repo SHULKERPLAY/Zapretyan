@@ -31,7 +31,7 @@ mv sender/config.json sender/config.json.old
 mv shell/config.cfg shell/config.old
 
 echo 'Downloading package'
-wget -t 5 -O Zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.2/zapretyan.tar.gz' && tar -xf Zapretyan.tar.gz && rm Zapretyan.tar.gz
+wget -t 5 -O Zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.2.1/zapretyan.tar.gz' && tar -xf Zapretyan.tar.gz && rm Zapretyan.tar.gz
 
 echo 'Restoring bot token'
 rm sender/config.json && mv sender/config.json.old sender/config.json
