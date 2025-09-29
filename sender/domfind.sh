@@ -11,7 +11,7 @@ index=$shdir/new.txt
 #temp cleanup
 tempsize=$(ls -A $tempdir | wc -w)
 if [ "$tempsize" -gt "100" ]; then
-    rm -rf $tempdir/*
+    rm -rf ${tempdir:?}/*
 fi
 
 #special chars
