@@ -1,21 +1,19 @@
 // Require the necessary discord.js classes
-const { Client, Routes, Events, GatewayIntentBits, ActivityType, setPrestnce } = require('discord.js');
+const { Client, Routes, Events, GatewayIntentBits, ActivityType, setPrestnce, SlashCommandBuilder } = require('discord.js');
 const { createInterface } = require('node:readline');
-const { execSync } = require('child_process');
+const { exec } = require("child_process");
 const fetch = require('node-fetch');
 const { token } = require('./config.json');
+const fs = require('fs');
+const path = require('path');
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-// Debug with
-// bot.on('error', (e) => console.error(e));
-// bot.on('warning', (e) => console.warn(e));
-// bot.on('debug', (e) => console.info(e));
-
-// When the client is ready, run client.once.
-// The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
-// It makes some properties non-nullable.
 client.once(Events.ClientReady, readyClient => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
@@ -25,14 +23,17 @@ const ping = {
   description: 'Пингует бота и показывает задержку'
 };
 
-// Command Example
+const bancheck = new SlashCommandBuilder()
+	.setName('bancheck')
+	.setDescription('Проверка наличия домена в реестре Роскомнадзора')
+	.addStringOption(option =>
+		option.setName('domain')
+			.setDescription('Имя домена без https://')
+			.setRequired(true));
 
-const ping0 = {
- name:'ping0',
- description:'Не трожь эту команду.'
-}
 
-const commands = [ping, ping0]; // Add your commands with commas to add them to the bot!
+
+const commands = [ping, bancheck]; // Add your commands with commas to add them to the bot!
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
 
@@ -41,6 +42,22 @@ client.on('interactionCreate', (interaction) => {
     interaction.reply(`Задержка ${Date.now() - interaction.createdTimestamp} миллисекунд! Задержка API ${Math.round(client.ws.ping)} миллисекунд.`);
   } else if(interaction.commandName === 'ping0') { // This is the example command's name!
     interaction.reply('Не дёргай по фигне');
+  } else if(interaction.commandName === 'bancheck') {
+	var domain = interaction.options.getString('domain');
+	var domainid = Math.random();
+//Send request to shellscript
+	async function domfind() {
+        exec(`sh ./domfind.sh ${domain} ${domainid}`, (stdout) => {
+    console.log(`Script stdout: ${stdout}`);
+	});
+await new Promise(r => setTimeout(r, 2000));
+//Read callback and reply
+	fs.readFile(path.join(__dirname,"/temp/"+domainid+""), 'utf8', (err, domaindata) => {
+    interaction.reply(domaindata);
+        });
+	console.log('Domfinder');
+	}
+	domfind();
   } else { // a response if you forget to add the command here
     interaction.reply('Для этой команды ещё нет ответа!');
   }
@@ -52,7 +69,7 @@ const question = (q) => new Promise((resolve) => rl.question(q, resolve));
   await client.login(token).catch((err) => {
     throw err
   });
-// client.user is now defined
+
   await client.rest.put(Routes.applicationCommands(client.user.id), { body: commands });
 
   client.user.setPresence({
