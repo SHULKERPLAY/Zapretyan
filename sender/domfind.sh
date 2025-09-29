@@ -7,7 +7,6 @@ minlength=5
 maxlength=255
 reqid=$2
 index=$shdir/new.txt
-#mkdir $tempdir
 
 #temp cleanup
 tempsize=$(ls -A $tempdir | wc -w)
@@ -16,9 +15,9 @@ if [ "$tempsize" -gt "100" ]; then
 fi
 
 #special chars
-if [[ ! "$1" =~ ^[a-zA-Z.-]+$ ]]; then
+if [[ ! "$1" =~ ^[a-zA-Z0-9.-]*$ ]]; then
         echo 'Недопустимый символ в __**'$1'**__.' > $tempdir/$reqid
-		exit 1
+	exit 1
 else
     domain=$(echo $1 | tr '[:upper:]' '[:lower:]')
 fi

@@ -240,7 +240,7 @@
 
 ## Дополнительные функции
 В файлах sender вложены дополнительные функции  
- - `index.js` - поддерживает состояние бота всегда в сети с нужным
+ - `online.js` - поддерживает состояние бота всегда в сети с нужным
    статусом, который вы сами можете настроить в файле. 
    
    Запускается из `index.sh`
@@ -370,11 +370,11 @@
     [Unit]
     Description=Discord bot status daemon
     [Service]
-    ExecStart=/bin/bash /root/zapretyan/sender/index.sh
+    ExecStart=/bin/bash /root/zapretyan/sender/online.sh
     [Install]
     WantedBy=multi-user.target
 
-Где вместо `/root/zapretyan/sender/index.sh` вы должны вписать путь к **вашему** расположению скрипта
+Где вместо `/root/zapretyan/sender/online.sh` вы должны вписать путь к **вашему** расположению скрипта
 
 **Устанавливаем службу**  
 
@@ -391,7 +391,7 @@
 
     systemctl disable zapretyanbot.service
 
-Настроить сам вывод статуса можно только отредактировав `sender/index.js`
+Настроить сам вывод статуса можно только отредактировав `sender/online.js`
 Меняются параметры под `client.user.setPresence({`
 
 Активность меняется в строчке 

@@ -43,7 +43,7 @@ client.on('interactionCreate', (interaction) => {
 	var domainid = Math.random();
 //Send request to shellscript
 	async function domfind() {
-        await new Promise(r => exec(`sh ./domfind.sh ${domain} ${domainid}`, (r))
+        await new Promise(r => exec(`/bin/bash ./domfind.sh '${domain}' '${domainid}'`, (r))
 	);
 //Read callback and reply
 	fs.readFile(path.join(__dirname,"/temp/"+domainid+""), 'utf8', (err, domaindata) => {
