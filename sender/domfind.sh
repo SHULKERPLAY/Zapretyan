@@ -51,7 +51,7 @@ else
         exit 0
     else
         firstresult=$(echo $resolve | awk '{print $1}')
-        echo ':large_blue_diamond: Нашла в реестре __'$firstresult'__ и ещё **'$(($rescount-1))' доменов**! Попробуйте уточнить запрос для получения более точного результата.'
+        echo ':large_blue_diamond: Нашла в реестре __'$firstresult'__ и ещё **'$(($rescount-1))' доменов**! Попробуйте уточнить запрос для получения более точного результата.' > $tempdir/$reqid
         echo 0
     fi
 fi

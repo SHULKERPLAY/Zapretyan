@@ -7,10 +7,6 @@ const { token } = require('./config.json');
 const fs = require('fs');
 const path = require('path');
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
@@ -47,15 +43,12 @@ client.on('interactionCreate', (interaction) => {
 	var domainid = Math.random();
 //Send request to shellscript
 	async function domfind() {
-        exec(`sh ./domfind.sh ${domain} ${domainid}`, (stdout) => {
-    console.log(`Script stdout: ${stdout}`);
-	});
-await new Promise(r => setTimeout(r, 2000));
+        await new Promise(r => exec(`sh ./domfind.sh ${domain} ${domainid}`, (r))
+	);
 //Read callback and reply
 	fs.readFile(path.join(__dirname,"/temp/"+domainid+""), 'utf8', (err, domaindata) => {
     interaction.reply(domaindata);
         });
-	console.log('Domfinder');
 	}
 	domfind();
   } else { // a response if you forget to add the command here
