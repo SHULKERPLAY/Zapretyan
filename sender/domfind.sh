@@ -1,5 +1,9 @@
+#MAYBE IM STUPID BUT THIS WORKS CORRECTLY ONLY IF U CALL INDEX.JS FROM SAME DIRECTORY AS INDEX
+#e.g node index.js
+#Otherwise bot will return null error trying to resolve an empty answer
+
 #Specify shell dir
-shdir=/root/lunarcontroller
+shdir=
 . $shdir/config.cfg
 #params
 tempdir=$jsdir/temp
@@ -46,7 +50,7 @@ if [ "$rescount" -lt "1" ]; then
     exit 0
 else
     if [ "$rescount" -lt "6" ]; then
-        echo ':bangbang: Нашла в реестре РКН эти домены: __'$resolve'__.' > $tempdir/$reqid
+        echo ':bangbang: Нашла в реестре РКН эти домены: __'$(echo "$resolve" | sed ':a;N;$!ba;s/\n/__, __/g')'__.' > $tempdir/$reqid
         exit 0
     else
         firstresult=$(echo $resolve | awk '{print $1}')

@@ -47,7 +47,9 @@ client.on('interactionCreate', (interaction) => {
 	);
 //Read callback and reply
 	fs.readFile(path.join(__dirname,"/temp/"+domainid+""), 'utf8', (err, domaindata) => {
-    interaction.reply(domaindata);
+	if (domaindata === undefined || domaindata === null) {
+		interaction.reply('*Ошибка сервера. Ответное значение undefined или null*');
+	} else interaction.reply(domaindata);
         });
 	}
 	domfind();
