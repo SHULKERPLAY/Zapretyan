@@ -50,11 +50,21 @@ if [ "$rescount" -lt "1" ]; then
     exit 0
 else
     if [ "$rescount" -lt "6" ]; then
-        echo ':bangbang: Нашла в реестре РКН эти домены: __'$(echo "$resolve" | sed ':a;N;$!ba;s/\n/__, __/g')'__.' > $tempdir/$reqid
+        if [ -z "$(echo "$resolve" | grep -e "^$domain$")"]; then
+            match='эти домены'
+        else
+            match='точное совпадение **`'$domain'`**, все совпадения'
+        fi
+        echo ':bangbang: Нашла в реестре РКН '$match': __'$(echo "$resolve" | sed ':a;N;$!ba;s/\n/__, __/g')'__.' > $tempdir/$reqid
         exit 0
     else
         firstresult=$(echo $resolve | awk '{print $1}')
-        echo ':large_blue_diamond: Нашла в реестре __'$firstresult'__ и ещё **'$(($rescount-1))' доменов**! Попробуйте уточнить запрос для получения более точного результата.' > $tempdir/$reqid
-        echo 0
+        if [ -z "$(echo "$resolve" | grep -e "^$domain$")"]; then
+            match='__'$firstresult'__'
+        else
+            match='точное совпадение **`'$domain'`**'
+        fi
+        echo ':large_blue_diamond: Нашла в реестре РКН '$match' и ещё **'$(($rescount-1))' доменов**! Измените запрос для получения более точного или объёмного результата.' > $tempdir/$reqid
+        exit 0
     fi
 fi
