@@ -52,7 +52,9 @@ client.on('interactionCreate', (interaction) => {
 	} else interaction.reply(domaindata);
         });
 	}
-	domfind();
+	if (domain.includes("'") || domain.includes('"')) {
+		interaction.reply('**В запросе запрещено использовать специальные символы!**')
+	} else domfind();
   } else { // a response if you forget to add the command here
     interaction.reply('Для этой команды ещё нет ответа!');
   }
