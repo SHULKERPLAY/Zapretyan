@@ -21,7 +21,7 @@ fi
 #special chars
 if [[ ! "$1" =~ ^[a-zA-Z0-9.-]*$ ]]; then
         echo 'Недопустимый символ в __**'$1'**__.' > $tempdir/$reqid
-	exit 1
+    exit 1
 else
     domain=$(echo $1 | tr '[:upper:]' '[:lower:]')
 fi
@@ -32,7 +32,7 @@ if [ "$length" -lt "$minlength" ]; then
     echo 'Минимальная длинна запроса - '$minlength' символов' > $tempdir/$reqid
     exit 1
 else
-	if [ "$length" -gt "$maxlength" ]; then
+    if [ "$length" -gt "$maxlength" ]; then
         echo 'Минимальная длинна запроса - '$maxlength' символов' > $tempdir/$reqid
         exit 1
     fi

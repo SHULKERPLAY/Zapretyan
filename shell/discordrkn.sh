@@ -39,24 +39,24 @@ mkdir $shdir/msgbuff/ban
 mkdir $shdir/msgbuff/unban
 
 #Git output marks new banned domains as + and the unbanned ones as - . So script remove the first line of git output and the first character '-' or '+' 
-#grep removes first character of the line and tail removes first line of output
+#sed removes first character of the line and tail removes first line of output
 
 git diff $shdir/old.txt $shdir/new.txt | grep ^+ | sed 's/^.//' | tail -n +2 > $shdir/checkone.txt
-	echo "**В СПИСОК ОГРАНИЧЕННЫХ РЕСУРСОВ СЕГОДНЯ ПОПАЛИ:**" > $shdir/bansite.txt
-	echo "**$qdate**" >> $shdir/bansite.txt
-	cat $shdir/checkone.txt >> $shdir/bansite.txt #New Banned Domains
-	split -C 3900 $shdir/bansite.txt $shdir/msgbuff/ban/0x
+    echo "**В СПИСОК ОГРАНИЧЕННЫХ РЕСУРСОВ СЕГОДНЯ ПОПАЛИ:**" > $shdir/bansite.txt
+    echo "**$qdate**" >> $shdir/bansite.txt
+    cat $shdir/checkone.txt >> $shdir/bansite.txt #New Banned Domains
+    split -C 3900 $shdir/bansite.txt $shdir/msgbuff/ban/0x
 git diff $shdir/old.txt $shdir/new.txt | grep ^- | sed 's/^.//' | tail -n +2 > $shdir/checktwo.txt
-	echo "**Удалены из базы данных (Возможно, разблокированы):**" > $shdir/unbansite.txt
-	echo "**$qdate**" >> $shdir/unbansite.txt
-	cat $shdir/checktwo.txt >> $shdir/unbansite.txt #New Unbanned Domains
-	split -C 3900 $shdir/unbansite.txt $shdir/msgbuff/unban/0x
+    echo "**Удалены из базы данных (Возможно, разблокированы):**" > $shdir/unbansite.txt
+    echo "**$qdate**" >> $shdir/unbansite.txt
+    cat $shdir/checktwo.txt >> $shdir/unbansite.txt #New Unbanned Domains
+    split -C 3900 $shdir/unbansite.txt $shdir/msgbuff/unban/0x
 git diff $shdir/oldip.txt $shdir/newip.txt | grep ^+ | sed 's/^.//' | tail -n +2 > $shdir/checkthree.txt
-	cat $shdir/checkthree.txt > $shdir/banip.txt #New Banned CIDR
-	sort -R $shdir/banip.txt | split -C 3900 - $shdir/msgbuff/banip/0x
+    cat $shdir/checkthree.txt > $shdir/banip.txt #New Banned CIDR
+    sort -R $shdir/banip.txt | split -C 3900 - $shdir/msgbuff/banip/0x
 git diff $shdir/oldip.txt $shdir/newip.txt | grep ^- | sed 's/^.//' | tail -n +2 > $shdir/checkfour.txt
-	cat $shdir/checkfour.txt > $shdir/unbanip.txt #New Unbanned CIDR
-	sort -R $shdir/unbanip.txt | split -C 3900 - $shdir/msgbuff/unbanip/0x
+    cat $shdir/checkfour.txt > $shdir/unbanip.txt #New Unbanned CIDR
+    sort -R $shdir/unbanip.txt | split -C 3900 - $shdir/msgbuff/unbanip/0x
     
 #Set Vars
 send=$jsdir/send.txt
@@ -85,41 +85,47 @@ if [ -e $shdir/new.txt ]; then
     if [ -e $shdir/old.txt ]; then
         echo -e "$e0x0"
     else
-        echo "$bancid" > $channelid
-        echo -e "\n *$e0x1* $errorping" > $send
-        $jsdir/send.sh
+        for bansend in "${bancid[@]}"; do
+            echo "$bansend" > $channelid
+            echo -e "\n *$e0x1* $errorping" > $send
+            $jsdir/send.sh
+        done
         isban=false
         isunban=false
         analytics=false
     fi
 else
-        echo "$bancid" > $channelid
+    for bansend in "${bancid[@]}"; do
+        echo "$bansend" > $channelid
         echo -e "\n *$e0x2* $errorping" > $send
         $jsdir/send.sh
-        isban=false
-        isunban=false
-        analytics=false
+    done
+    isban=false
+    isunban=false
+    analytics=false
 fi
 #
 if [ -e $shdir/newip.txt ]; then
     if [ -e $shdir/oldip.txt ]; then
         echo -e "$e0x0"
     else
-        echo "$banipcid" > $channelid
-        echo -e "\n *$e0x1* $errorping" > $send
-        $jsdir/send.sh
+        for banipsend in "${banipcid[@]}"; do
+            echo "$banipsend" > $channelid
+            echo -e "\n *$e0x1* $errorping" > $send
+            $jsdir/send.sh
+        done
         isbanip=false
         isunbanip=false
     fi
 else
-        echo "$banipcid" > $channelid
+    for banipsend in "${banipcid[@]}"; do
+        echo "$banipsend" > $channelid
         echo -e "\n *$e0x2* $errorping" > $send
         $jsdir/send.sh
-        isbanip=false
-        isunbanip=false
+    done
+    isbanip=false
+    sunbanip=false
 fi
-
-sleep 2
 chmod 777 $shdir/*
 sleep 2
 
@@ -137,47 +143,50 @@ fi
 
 #Send List of new domain Bans
 if [ "$isban" = true ]; then
-echo "Заблокированые сегодня домены" > $fieldname
-echo "$bancid" > $channelid
-echo "$banclr" > $embedcolor
-if [ "$banbytes" -le "2" ]; then
-    if [ "$errorsend" = true ]; then
-        echo -e "\n :orange_book: *В сегодняшнем списке нет новых заблокированых ресурсов!* $errorping" > $send
-        $jsdir/send.sh && sleep 2
-    else
-        sleep 2
-    fi
-else
-	for file1 in $shdir/msgbuff/ban/*
-		do
-		cat "$file1" > $send && $jsdir/sendembed.sh && sleep 2
-		done
-	echo -e "**:fire: Сегодня заблокировано доменов:__ $bancount __!** \n:no_entry_sign: Всего заблокировано:__ $totalbanned __" > $send
-	$jsdir/send.sh && sleep 2
+    echo "Заблокированые сегодня домены" > $fieldname
+    echo "$banclr" > $embedcolor
+    for bansend in "${bancid[@]}"; do
+        echo "$bansend" > $channelid
+        if [ "$banbytes" -le "2" ]; then
+            if [ "$errorsend" = true ]; then
+                echo -e "\n :orange_book: *В сегодняшнем списке нет новых заблокированых ресурсов!* $errorping" > $send
+                $jsdir/send.sh && sleep 2
+            else
+                sleep 2
+            fi
+        else
+            for file1 in $shdir/msgbuff/ban/*
+                do
+                cat "$file1" > $send && $jsdir/sendembed.sh && sleep 2
+                done
+            echo -e "**:fire: Сегодня заблокировано доменов:__ $bancount __!** \n:no_entry_sign: Всего заблокировано:__ $totalbanned __" > $send
+            $jsdir/send.sh && sleep 2
+        fi
+    done
 fi
-fi
-
 #Unban check
 if [ "$isunban" = true ]; then
-echo "Разблокированые сегодня домены" > $fieldname
-echo "$unbancid" > $channelid
-echo "$unbanclr" > $embedcolor
-if [ "$unbanbytes" -le "2" ]; then
-	if [ "$errorsend" = true ]; then
-        echo -e "\n :orange_book: *Сегодня никого не разблокировали!* $errorping" > $send
-        $jsdir/send.sh && sleep 2
-    else
-        sleep 2
-    fi
-else
-    #Send Unban List
-    for file2 in $shdir/msgbuff/unban/*
-        do
-        cat "$file2" > $send && $jsdir/sendembed.sh && sleep 2
-        done
-echo -e "**:large_blue_diamond: Сегодня разблокировано доменов:__ $unbancount __! :large_blue_diamond:**" > $send
-$jsdir/send.sh && sleep 2
-fi
+    echo "Разблокированые сегодня домены" > $fieldname
+    echo "$unbanclr" > $embedcolor
+    for unbansend in "${unbancid[@]}"; do
+        echo "$unbansend" > $channelid
+        if [ "$unbanbytes" -le "2" ]; then
+            if [ "$errorsend" = true ]; then
+                echo -e "\n :orange_book: *Сегодня никого не разблокировали!* $errorping" > $send
+                $jsdir/send.sh && sleep 2
+            else
+                sleep 2
+            fi
+        else
+            #Send Unban List
+            for file2 in $shdir/msgbuff/unban/*
+                do
+                cat "$file2" > $send && $jsdir/sendembed.sh && sleep 2
+                done
+            echo -e "**:large_blue_diamond: Сегодня разблокировано доменов:__ $unbancount __! :large_blue_diamond:**" > $send
+            $jsdir/send.sh && sleep 2
+        fi
+    done
 fi
 
 #Send today's CIDR banlist
@@ -188,80 +197,84 @@ if [ "$isbanip" = true ]; then
     if [ "$sources" = "github" ]; then
         echo "Заблокированые сегодня наборы адресов" > $fieldname
     fi
-echo "$banipcid" > $channelid
-echo "$banipclr" > $embedcolor
-if [ "$banipbytes" -le "2" ]; then
-    if [ "$errorsend" = true ]; then
-        if [ "$sources" = "antifilter" ]; then
-            echo -e ":orange_book: *В сегодняшнем списке нет новых заблокированых IP адресов!*  $errorping" > $send
+    echo "$banipclr" > $embedcolor
+    for banipsend in "${banipcid[@]}"; do
+        echo "$banipsend" > $channelid
+        if [ "$banipbytes" -le "2" ]; then
+            if [ "$errorsend" = true ]; then
+                if [ "$sources" = "antifilter" ]; then
+                    echo -e ":orange_book: *В сегодняшнем списке нет новых заблокированых IP адресов!*  $errorping" > $send
+                fi
+                if [ "$sources" = "github" ]; then
+                    echo -e "*:orange_book: *В сегодняшнем списке нет новых заблокированых наборов адресов!*  $errorping" > $send
+                fi
+                $jsdir/send.sh && sleep 2
+            else
+                sleep 2
+            fi
+        else
+            if [ "$sources" = "antifilter" ]; then
+                echo "**СПИСОК СЛУЧАЙНЫХ__ $rndipbancnt __ ЗАБЛОКИРОВАНЫХ СЕГОДНЯ IP АДРЕСОВ:**" > $send
+            fi
+            if [ "$sources" = "github" ]; then
+                echo "**СПИСОК СЛУЧАЙНЫХ__ $rndipbancnt __ ЗАБЛОКИРОВАНЫХ СЕГОДНЯ CIDR:**" > $send
+            fi
+            echo "**$qdate**" >> $send
+            cat $shdir/msgbuff/banip/0xaa >> $send && $jsdir/sendembed.sh
+            sleep 5
+            if [ "$sources" = "antifilter" ]; then
+                echo -e "**:x: Заблокировано IP адресов:__ $banipcount __!** \n:anger: Всего заблокировано:__ $totalipbanned __" > $send
+            fi
+            if [ "$sources" = "github" ]; then
+                echo -e "**:x: Обновлено CIDR записей:__ $banipcount __!** \n:anger: Всего заблокировано:__ $totalipbanned __" > $send
+            fi
+            $jsdir/send.sh && sleep 2
         fi
-        if [ "$sources" = "github" ]; then
-            echo -e "*:orange_book: *В сегодняшнем списке нет новых заблокированых наборов адресов!*  $errorping" > $send
-        fi
-        $jsdir/send.sh && sleep 2
-    else
-        sleep 2
-    fi
-else
-    if [ "$sources" = "antifilter" ]; then
-        echo "**СПИСОК СЛУЧАЙНЫХ__ $rndipbancnt __ ЗАБЛОКИРОВАНЫХ СЕГОДНЯ IP АДРЕСОВ:**" > $send
-    fi
-    if [ "$sources" = "github" ]; then
-        echo "**СПИСОК СЛУЧАЙНЫХ__ $rndipbancnt __ ЗАБЛОКИРОВАНЫХ СЕГОДНЯ CIDR:**" > $send
-    fi
-	echo "**$qdate**" >> $send
-	cat $shdir/msgbuff/banip/0xaa >> $send && $jsdir/sendembed.sh
-	sleep 5
-    if [ "$sources" = "antifilter" ]; then
-        echo -e "**:x: Заблокировано IP адресов:__ $banipcount __!** \n:anger: Всего заблокировано:__ $totalipbanned __" > $send
-    fi
-    if [ "$sources" = "github" ]; then
-        echo -e "**:x: Обновлено CIDR записей:__ $banipcount __!** \n:anger: Всего заблокировано:__ $totalipbanned __" > $send
-    fi
-	$jsdir/send.sh && sleep 2
-fi
+    done
 fi
 
 #Unban Check
 if [ "$isunbanip" = true ]; then
-if [ "$sources" = "antifilter" ]; then
-    echo "Разблокированые сегодня IP адреса" > $fieldname
-fi
-if [ "$sources" = "github" ]; then
-    echo "Разблокированые сегодня наборы адресов" > $fieldname
-fi
-echo "$unbanipcid" > $channelid
-echo "$unbanipclr" > $embedcolor
-if [ "$unbanipbytes" -le "2" ]; then
-    if [ "$errorsend" = true ]; then
-        if [ "$sources" = "antifilter" ]; then
-            echo -e ":orange_book: *В сегодняшнем списке нет разблокированых IP адресов!*  $errorping" > $send
-        fi
-        if [ "$sources" = "github" ]; then
-            echo -e ":orange_book: *В сегодняшнем списке нет разблокированых CIDR!*  $errorping" > $send
-        fi
-        $jsdir/send.sh && sleep 2
-    else
-        sleep 2
-    fi
-else
-	#Send CIDR unban List
     if [ "$sources" = "antifilter" ]; then
-        echo "**Случайные__ $rndipunbancnt __ IP адресов, удалённые из базы данных (Возможно, разблокированые):**" > $send
+        echo "Разблокированые сегодня IP адреса" > $fieldname
     fi
     if [ "$sources" = "github" ]; then
-        echo "**Случайные__ $rndipunbancnt __ CIDR, удалённые из базы данных (Возможно, разблокированые):**" > $send
+        echo "Разблокированые сегодня наборы адресов" > $fieldname
     fi
-	echo "**$qdate**" >> $send
-	cat $shdir/msgbuff/unbanip/0xaa >> $send && $jsdir/sendembed.sh && sleep 2
-    if [ "$sources" = "antifilter" ]; then
-        echo -e "**:green_circle: Сегодня разблокировано__ $unbanipcount __ IP адресов! :green_circle:**" > $send
-    fi
-    if [ "$sources" = "github" ]; then
-        echo -e "**:green_circle: Сегодня разблокировано__ $unbanipcount __ CIDR! :green_circle:**" > $send
-    fi
-	$jsdir/send.sh && sleep 2
-fi
+    echo "$unbanipclr" > $embedcolor
+    for unbanipsend in "${unbanipcid[@]}"; do
+        echo "$unbanipsend" > $channelid
+        if [ "$unbanipbytes" -le "2" ]; then
+            if [ "$errorsend" = true ]; then
+                if [ "$sources" = "antifilter" ]; then
+                    echo -e ":orange_book: *В сегодняшнем списке нет разблокированых IP адресов!*  $errorping" > $send
+                fi
+                if [ "$sources" = "github" ]; then
+                    echo -e ":orange_book: *В сегодняшнем списке нет разблокированых CIDR!*  $errorping" > $send
+                fi
+                $jsdir/send.sh && sleep 2
+            else
+                sleep 2
+            fi
+        else
+            #Send CIDR unban List
+            if [ "$sources" = "antifilter" ]; then
+                echo "**Случайные__ $rndipunbancnt __ IP адресов, удалённые из базы данных (Возможно, разблокированые):**" > $send
+            fi
+            if [ "$sources" = "github" ]; then
+                echo "**Случайные__ $rndipunbancnt __ CIDR, удалённые из базы данных (Возможно, разблокированые):**" > $send
+            fi
+            echo "**$qdate**" >> $send
+            cat $shdir/msgbuff/unbanip/0xaa >> $send && $jsdir/sendembed.sh && sleep 2
+            if [ "$sources" = "antifilter" ]; then
+                echo -e "**:green_circle: Сегодня разблокировано__ $unbanipcount __ IP адресов! :green_circle:**" > $send
+            fi
+            if [ "$sources" = "github" ]; then
+                echo -e "**:green_circle: Сегодня разблокировано__ $unbanipcount __ CIDR! :green_circle:**" > $send
+            fi
+            $jsdir/send.sh && sleep 2
+        fi
+    done
 fi
   
 #Cleanup

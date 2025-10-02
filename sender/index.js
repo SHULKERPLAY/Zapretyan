@@ -11,7 +11,7 @@ const path = require('path');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.once(Events.ClientReady, readyClient => {
-	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+    console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
 const ping = {
@@ -20,12 +20,12 @@ const ping = {
 };
 
 const bancheck = new SlashCommandBuilder()
-	.setName('bancheck')
-	.setDescription('Проверка наличия домена в реестре Роскомнадзора')
-	.addStringOption(option =>
-		option.setName('domain')
-			.setDescription('Имя домена без https://')
-			.setRequired(true));
+    .setName('bancheck')
+    .setDescription('Проверка наличия домена в реестре Роскомнадзора')
+    .addStringOption(option =>
+        option.setName('domain')
+            .setDescription('Имя домена без https://')
+            .setRequired(true));
 
 
 
@@ -36,25 +36,23 @@ const rl = createInterface({ input: process.stdin, output: process.stdout });
 client.on('interactionCreate', (interaction) => {
   if (interaction.commandName === 'ping') {
     interaction.reply(`Задержка ${Date.now() - interaction.createdTimestamp} миллисекунд! Задержка API ${Math.round(client.ws.ping)} миллисекунд.`);
-  } else if(interaction.commandName === 'ping0') { // This is the example command's name!
-    interaction.reply('Не дёргай по фигне');
   } else if(interaction.commandName === 'bancheck') {
-	var domain = interaction.options.getString('domain');
-	var domainid = Math.random();
+    var domain = interaction.options.getString('domain');
+    var domainid = Math.random();
 //Send request to shellscript
-	async function domfind() {
+    async function domfind() {
         await new Promise(r => exec(`/bin/bash ./domfind.sh '${domain}' '${domainid}'`, (r))
-	);
+    );
 //Read callback and reply
-	fs.readFile(path.join(__dirname,"/temp/"+domainid+""), 'utf8', (err, domaindata) => {
-	if (domaindata === undefined || domaindata === null) {
-		interaction.reply('*Ошибка сервера. Ответное значение undefined или null*');
-	} else interaction.reply(domaindata);
+    fs.readFile(path.join(__dirname,"/temp/"+domainid+""), 'utf8', (err, domaindata) => {
+    if (domaindata === undefined || domaindata === null) {
+        interaction.reply('*Ошибка сервера. Ответное значение undefined или null*');
+    } else interaction.reply(domaindata);
         });
-	}
-	if (domain.includes("'") || domain.includes('"')) {
-		interaction.reply('**В запросе запрещено использовать специальные символы!**')
-	} else domfind();
+    }
+    if (domain.includes("'") || domain.includes('"')) {
+        interaction.reply('**В запросе запрещено использовать специальные символы!**')
+    } else domfind();
   } else { // a response if you forget to add the command here
     interaction.reply('Для этой команды ещё нет ответа!');
   }

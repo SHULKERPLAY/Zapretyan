@@ -41,7 +41,7 @@ const color = clr.slice(0, 6); //v1.2.1 fix cuz color variable get non-existing 
 // Create a new client instance
  const client = new Client({ intents: [GatewayIntentBits.Guilds] });
  client.once(Events.ClientReady, readyClient => {
-	console.log(`Send embed as ${readyClient.user.tag}`);
+    console.log(`Send embed as ${readyClient.user.tag}`);
 });
 
 // Log in to Discord with your client's token
@@ -49,12 +49,12 @@ client.login(token).then((token) => {
 // client.user is now defined
 
 const banEmbed = new EmbedBuilder()
-	.setColor(color)
-	.setTitle(fieldname)
-	.setDescription(data)
-	.setAuthor({ name: 'Запретян <3', iconURL: 'https://cdn.discordapp.com/avatars/907372459144147035/2771cf414eececfd9818a4dce423f7fc?size=256', url: 'https://github.com/SHULKERPLAY' })
-	.setTimestamp()
-	.setFooter({ text: 'С любовью, @shulkerplay' });
+    .setColor(color)
+    .setTitle(fieldname)
+    .setDescription(data)
+    .setAuthor({ name: 'Запретян <3', iconURL: 'https://cdn.discordapp.com/avatars/907372459144147035/2771cf414eececfd9818a4dce423f7fc?size=256', url: 'https://github.com/SHULKERPLAY' })
+    .setTimestamp()
+    .setFooter({ text: 'С любовью, @shulkerplay' });
 
   client.channels.fetch(cid).then(channel => {
   channel.send( {embeds: [banEmbed]} );
