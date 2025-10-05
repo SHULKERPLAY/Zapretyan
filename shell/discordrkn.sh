@@ -17,7 +17,6 @@ if [ "$sources" = "antifilter" ]; then
     wget -t 5 -T 300 -O $shdir/new.txt 'https://antifilter.download/list/domains.lst'
     wget -t 5 -T 300 -O $shdir/newip.txt 'https://antifilter.download/list/ip.lst'
 fi
-    
 if [ "$sources" = "github" ]; then
     wget -t 5 -O $shdir/v2ray.zip 'https://github.com/Nidelon/ru-block-v2ray-rules/archive/refs/heads/release.zip'
     unzip -o $shdir/v2ray.zip -d $shdir/
@@ -58,7 +57,7 @@ git diff $shdir/oldip.txt $shdir/newip.txt | grep ^+ | sed 's/^.//' | tail -n +2
 git diff $shdir/oldip.txt $shdir/newip.txt | grep ^- | sed 's/^.//' | tail -n +2 > $shdir/checkfour.txt
     cat $shdir/checkfour.txt > $shdir/unbanip.txt #New Unbanned CIDR
     sort -R $shdir/unbanip.txt | split -C 3900 - $shdir/msgbuff/unbanip/0x
-    
+
 #Set Vars
 batchsend=$jsdir/send
 send=$jsdir/send.txt
@@ -157,7 +156,7 @@ if [ "$isban" = true ]; then
                 sleep 2
             fi
         else
-            mv $shdir/msgbuff/ban/* ${batchsend:?}/*
+            mv $shdir/msgbuff/ban/* ${batchsend:?}/
             $jsdir/multiembed.sh && sleep 2
             echo -e "**:fire: Сегодня заблокировано доменов:__ $bancount __!** \n:no_entry_sign: Всего заблокировано:__ $totalbanned __" > $send
             $jsdir/send.sh && sleep 2
@@ -180,9 +179,8 @@ if [ "$isunban" = true ]; then
             fi
         else
             #Send Unban List
-            mv $shdir/msgbuff/unban/* ${batchsend:?}/*
+            mv $shdir/msgbuff/unban/* ${batchsend:?}/
             $jsdir/multiembed.sh && sleep 2
-            rm -rf ${batchsend:?}/*
             echo -e "**:large_blue_diamond: Сегодня разблокировано доменов:__ $unbancount __! :large_blue_diamond:**" > $send
             $jsdir/send.sh && sleep 2
         fi

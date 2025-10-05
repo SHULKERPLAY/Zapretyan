@@ -1,5 +1,5 @@
 #!/bin/bash
-echo discordrkn-retest v1.1
+echo discordrkn-retest v1.3
 #Repeat today's send
 echo detecting directory
 bashdir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -16,6 +16,7 @@ rm $shdir/banip.txt
 rm $shdir/unbanip.txt
 rm -rf $shdir/ru-block-v2ray-rules-release/
 rm -rf $shdir/msgbuff/
+rm -rf $jsdir/send/
 
 rm $bashdir/new.txt
 rm $bashdir/newip.txt
