@@ -27,6 +27,7 @@ clear
 cd $installpath
 
 echo 'Saving old configs'
+rm -f shell/config.old
 mv sender/config.json sender/config.json.old
 mv shell/config.cfg shell/config.old
 
@@ -47,4 +48,4 @@ echo -e "banipcid=$banipcid" >> shell/config.cfg
 echo -e "unbanipcid=$unbanipcid" >> shell/config.cfg
 echo 'RESTORED: DIRS, PING IDs, CIDs'
 
-echo -e "\n\n\nDone! Please edit $installpath/shell/config.cfg to match your needs\nOld config can be found in $installpath/shell/config.old"
+echo -e "\n\n\nDone! Please edit $installpath/shell/config.cfg to match your needs\nOld config can be found in $installpath/shell/config.old\nRead changelog to check config syntax changes"
