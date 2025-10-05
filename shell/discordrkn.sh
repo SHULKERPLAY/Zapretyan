@@ -37,6 +37,7 @@ mkdir $shdir/msgbuff/banip
 mkdir $shdir/msgbuff/unbanip
 mkdir $shdir/msgbuff/ban
 mkdir $shdir/msgbuff/unban
+mkdir $jsdir/send
 
 #Git output marks new banned domains as + and the unbanned ones as - . So script remove the first line of git output and the first character '-' or '+' 
 #sed removes first character of the line and tail removes first line of output
@@ -59,6 +60,7 @@ git diff $shdir/oldip.txt $shdir/newip.txt | grep ^- | sed 's/^.//' | tail -n +2
     sort -R $shdir/unbanip.txt | split -C 3900 - $shdir/msgbuff/unbanip/0x
     
 #Set Vars
+batchsend=$jsdir/send
 send=$jsdir/send.txt
 channelid=$jsdir/var/cid
 fieldname=$jsdir/var/name
@@ -155,14 +157,13 @@ if [ "$isban" = true ]; then
                 sleep 2
             fi
         else
-            for file1 in $shdir/msgbuff/ban/*
-                do
-                cat "$file1" > $send && $jsdir/sendembed.sh && sleep 2
-                done
+            mv $shdir/msgbuff/ban/* ${batchsend:?}/*
+            $jsdir/multiembed.sh && sleep 2
             echo -e "**:fire: Сегодня заблокировано доменов:__ $bancount __!** \n:no_entry_sign: Всего заблокировано:__ $totalbanned __" > $send
             $jsdir/send.sh && sleep 2
         fi
     done
+    rm -rf ${batchsend:?}/*
 fi
 #Unban check
 if [ "$isunban" = true ]; then
@@ -179,14 +180,14 @@ if [ "$isunban" = true ]; then
             fi
         else
             #Send Unban List
-            for file2 in $shdir/msgbuff/unban/*
-                do
-                cat "$file2" > $send && $jsdir/sendembed.sh && sleep 2
-                done
+            mv $shdir/msgbuff/unban/* ${batchsend:?}/*
+            $jsdir/multiembed.sh && sleep 2
+            rm -rf ${batchsend:?}/*
             echo -e "**:large_blue_diamond: Сегодня разблокировано доменов:__ $unbancount __! :large_blue_diamond:**" > $send
             $jsdir/send.sh && sleep 2
         fi
     done
+    rm -rf ${batchsend:?}/*
 fi
 
 #Send today's CIDR banlist

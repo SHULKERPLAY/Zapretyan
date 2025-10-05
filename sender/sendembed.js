@@ -1,12 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-//Set Timeout to stop script
-setTimeout(online, 10000)
-function online() {
-throw new Error("ScriptTimeout");
-}
-
 // Require the necessary discord.js classes
 const { EmbedBuilder, ActivityType, Client, Events, GatewayIntentBits, Channels, Channel, Send } = require('discord.js');
 const { token } = require('./config.json');
@@ -55,10 +49,13 @@ const banEmbed = new EmbedBuilder()
     .setAuthor({ name: 'Запретян <3', iconURL: 'https://cdn.discordapp.com/avatars/907372459144147035/2771cf414eececfd9818a4dce423f7fc?size=256', url: 'https://github.com/SHULKERPLAY' })
     .setTimestamp()
     .setFooter({ text: 'С любовью, @shulkerplay' });
-
-  client.channels.fetch(cid).then(channel => {
-  channel.send( {embeds: [banEmbed]} );
+async function sendData() {
+   await client.channels.fetch(cid).then(channel => {
+   channel.send( {embeds: [banEmbed]} );
 });
+client.destroy();
+}
+sendData()
 });
 });
 });

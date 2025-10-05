@@ -1,12 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-//Set Timeout to stop script
-setTimeout(online, 60000)
-function online() {
-throw new Error("ScriptTimeout");
-}
-
 //read content from file
 fs.readFile(path.join(__dirname,'sendprivate.txt'), 'utf8', (err, data) => {
   if (err) {
@@ -33,9 +27,13 @@ client.once(Events.ClientReady, readyClient => {
 // Log in to Discord with your client's token
 client.login(token).then((token) => {
 // client.user is now defined
-
-  client.users.fetch(cid).then(user => {
+async function sendData() {
+  await client.users.fetch(cid).then(user => {
   user.send(data);
+});
+client.destroy();
+}
+sendData()
 });
 });
 });
