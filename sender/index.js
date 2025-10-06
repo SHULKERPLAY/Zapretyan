@@ -21,7 +21,7 @@ const ping = {
 
 const bancheck = new SlashCommandBuilder()
     .setName('bancheck')
-    .setDescription('Проверка наличия домена в реестре Роскомнадзора')
+    .setDescription('Проверка наличия домена или IP адреса в реестре Роскомнадзора')
     .addStringOption(option =>
         option.setName('type')
             .setDescription('Блокировку чего нужно проверить? Домена/Сайта или IP адреса?')
@@ -43,7 +43,7 @@ const rl = createInterface({ input: process.stdin, output: process.stdout });
 
 client.on('interactionCreate', (interaction) => {
   if (interaction.commandName === 'ping') {
-    interaction.reply(`Задержка ${Date.now() - interaction.createdTimestamp} миллисекунд! Задержка API ${Math.round(client.ws.ping)} миллисекунд.`);
+    interaction.reply(`:ping_pong: *Понг!* Задержка ${Date.now() - interaction.createdTimestamp} миллисекунд! Задержка API ${Math.round(client.ws.ping)} миллисекунд.`);
   } else if(interaction.commandName === 'bancheck') {
     var type = interaction.options.getString('type');
         if (type === 'domain') {
@@ -56,32 +56,32 @@ client.on('interactionCreate', (interaction) => {
             //Read callback and reply
             fs.readFile(path.join(__dirname,"/temp/"+domainid+""), 'utf8', (err, domaindata) => {
             if (domaindata === undefined || domaindata === null) {
-                interaction.reply('*Ошибка сервера. Ответное значение undefined или null*');
+                interaction.reply(':warning: *Ошибка сервера. Ответное значение undefined или null*');
             } else interaction.reply(domaindata);
                 });
             }
             if (domain.includes("'") || domain.includes('"')) {
-                interaction.reply('**В запросе запрещено использовать специальные символы!**')
+                interaction.reply(':warning: **В запросе запрещено использовать специальные символы!**')
             } else domfind(); 
       } else if (type === 'ip') {
             var ip = interaction.options.getString('string');
             var ipid = Math.random();
             //Send request to shellscript
             async function ipfind() {
-                await new Promise(r => exec(`/bin/bash ./domfind.sh '${ip}' '${ipid} ip'`, (r))
+                await new Promise(r => exec(`/bin/bash ./domfind.sh '${ip}' '${ipid}' ip`, (r))
             );
             //Read callback and reply
             fs.readFile(path.join(__dirname,"/temp/"+ipid+""), 'utf8', (err, domaindata) => {
             if (domaindata === undefined || domaindata === null) {
-                interaction.reply('*Ошибка сервера. Ответное значение undefined или null*');
+                interaction.reply(':warning: *Ошибка сервера. Ответное значение undefined или null*');
             } else interaction.reply(domaindata);
                 });
             }
             if (ip.includes("'") || ip.includes('"')) {
-                interaction.reply('**В запросе запрещено использовать специальные символы!**')
+                interaction.reply(':warning: **В запросе запрещено использовать специальные символы!**')
             } else ipfind();
       } else { // a response if you forget to add the command here
-    interaction.reply('Для этой команды ещё нет ответа!');
+    interaction.reply(':warning: Для этой команды ещё нет ответа!');
   }
   }
 });
@@ -97,6 +97,6 @@ const question = (q) => new Promise((resolve) => rl.question(q, resolve));
 
   client.user.setPresence({
   activities: [{ name: `обходе блокировок`, type: ActivityType.Competing }],
-  status: 'idle',
+  status: 'online',
 });
 })();

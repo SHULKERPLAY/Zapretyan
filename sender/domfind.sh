@@ -13,6 +13,11 @@ reqid=$2
 index=$shdir/new.txt
 ipindex=$shdir/newip.txt
 
+#temp cleanup
+tempsize=$(ls -A $tempdir | wc -w)
+if [ "$tempsize" -gt "100" ]; then
+    rm -rf ${tempdir:?}/*
+fi
 if [ "$3" = "ip" ]; then
     if [[ ! "$1" =~ ^[0-9.]*$ ]]; then
         echo ':red_circle: Недопустимый символ в __**'$1'**__.' > $tempdir/$reqid
@@ -41,15 +46,10 @@ if [ "$3" = "ip" ]; then
     fi
 exit 1
 fi
-#temp cleanup
-tempsize=$(ls -A $tempdir | wc -w)
-if [ "$tempsize" -gt "100" ]; then
-    rm -rf ${tempdir:?}/*
-fi
 
 #special chars
 if [[ ! "$1" =~ ^[a-zA-Z0-9.-]*$ ]]; then
-        echo 'Недопустимый символ в __**'$1'**__.' > $tempdir/$reqid
+        echo ':red_circle: Недопустимый символ в __**'$1'**__.' > $tempdir/$reqid
     exit 1
 else
     domain=$(echo $1 | tr '[:upper:]' '[:lower:]')
@@ -58,11 +58,11 @@ fi
 #length
 length=$(echo $domain | wc -m)
 if [ "$length" -lt "$minlength" ]; then
-    echo 'Минимальная длинна запроса - '$minlength' символов' > $tempdir/$reqid
+    echo ':red_circle: Минимальная длинна запроса - '$minlength' символов' > $tempdir/$reqid
     exit 1
 else
     if [ "$length" -gt "$maxlength" ]; then
-        echo 'Минимальная длинна запроса - '$maxlength' символов' > $tempdir/$reqid
+        echo ':red_circle: Минимальная длинна запроса - '$maxlength' символов' > $tempdir/$reqid
         exit 1
     fi
 fi
@@ -84,7 +84,7 @@ else
         else
             match='точное совпадение **`'$domain'`**, все совпадения'
         fi
-        echo ':bangbang: Нашла в реестре РКН '$match': __'$(echo "$resolve" | sed ':a;N;$!ba;s/\n/__, __/g')'__.' > $tempdir/$reqid
+        echo ':orange_heart: Нашла в реестре РКН '$match': __'$(echo "$resolve" | sed ':a;N;$!ba;s/\n/__, __/g')'__.' > $tempdir/$reqid
         exit 0
     else
         firstresult=$(echo $resolve | awk '{print $1}')
@@ -93,7 +93,7 @@ else
         else
             match='точное совпадение **`'$domain'`**'
         fi
-        echo ':large_blue_diamond: Нашла в реестре РКН '$match' и ещё **'$(($rescount-1))' доменов**! Измените запрос для получения более точного или объёмного результата.' > $tempdir/$reqid
+        echo ':yellow_heart: Нашла в реестре РКН '$match' и ещё **'$(($rescount-1))' доменов**! Измените запрос для получения более точного или объёмного результата.' > $tempdir/$reqid
         exit 0
     fi
 fi
