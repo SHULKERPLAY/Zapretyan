@@ -11,7 +11,36 @@ minlength=5
 maxlength=255
 reqid=$2
 index=$shdir/new.txt
+ipindex=$shdir/newip.txt
 
+if [ "$3" = "ip" ]; then
+    if [[ ! "$1" =~ ^[0-9.]*$ ]]; then
+        echo ':red_circle: Недопустимый символ в __**'$1'**__.' > $tempdir/$reqid
+        exit 1
+    else
+        ip=$1
+    fi
+    length=$(echo $ip | wc -m)
+    if [ "$length" -gt "16" ]; then
+        echo ':red_circle: Минимальная длинна запроса - 16 символов' > $tempdir/$reqid
+        exit 1
+    fi
+    if [[ "$ip" =~ ^(([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))\.){3}([1-9]?[0-9]|1[0-9][0-9]|2([0-4][0-9]|5[0-5]))$ ]]; then
+      resolve=$(grep -x $ip $ipindex)
+      rescount=$(echo $resolve | wc -w)
+    else
+      echo ':red_circle: **Недопустимый ip адрес!** Допустимы четыре октета с числами от 0 до 255.' > $tempdir/$reqid
+      exit 1
+    fi
+    if [ "$rescount" -lt "1" ]; then
+        echo ':green_heart: __'$ip'__ **не найден** в реестре блокировок РКН!' > $tempdir/$reqid
+        exit 0
+    else
+        echo ':large_orange_diamond: __'$ip'__ **был найден** в реестре блокировок РКН!' > $tempdir/$reqid
+        exit 0
+    fi
+exit 1
+fi
 #temp cleanup
 tempsize=$(ls -A $tempdir | wc -w)
 if [ "$tempsize" -gt "100" ]; then
