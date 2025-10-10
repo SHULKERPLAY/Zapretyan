@@ -163,6 +163,7 @@ if [ "$isban" = true ]; then
         fi
     done
     rm -rf ${batchsend:?}/
+    mkdir $jsdir/send
 fi
 #Unban check
 if [ "$isunban" = true ]; then

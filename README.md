@@ -1,6 +1,8 @@
 ![Запретян <3](https://github.com/SHULKERPLAY/Zapretyan/blob/main/zapretyanrepo.png)
 > Readme is only available in russian
 
+> Обновления репозитория [перестанут выходить вплоть до 2027 года, подробности в патче 1.3](https://github.com/SHULKERPLAY/Zapretyan/releases/tag/1.3)
+
 # Запретян / Zapretyan
 [![CodeFactor](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/badge/main)](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/overview/main) ![GitHub Release](https://img.shields.io/github/v/release/shulkerplay/zapretyan) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/shulkerplay/zapretyan) ![Discord](https://img.shields.io/discord/683814496942424078?label=Discord) ![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UCWoypHEOaTh6N9zwCtRzr0w) 
 
@@ -43,7 +45,7 @@
 
 Качаем и распаковываем с заменой последний релиз *(Обращу внимание что с версии 1.2 релизы публикуются в архивах GZIP)*
 
-    wget -t 5 -O Zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.2.1/zapretyan.tar.gz' && tar -xf Zapretyan.tar.gz && rm Zapretyan.tar.gz
+    wget -t 5 -O Zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.3/zapretyan.tar.gz' && tar -xf Zapretyan.tar.gz && rm Zapretyan.tar.gz
 
 Возвращаем старый токен бота
 
@@ -62,7 +64,7 @@
   
 Скачайте архив из последнего релиза  
 
-    wget -O zapretyan.tar 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.2.1/zapretyan.tar'
+    wget -O zapretyan.tar 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.3/zapretyan.tar'
 
   
 Или скачайте архив репозитория  
