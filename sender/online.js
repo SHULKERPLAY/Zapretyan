@@ -14,9 +14,9 @@ client.once(Events.ClientReady, readyClient => {
 
 // Log in to Discord with your client's token
 client.login(token).then((token) => {
- // client.user is now defined
-client.user.setPresence({
-  activities: [{ name: `обходе блокировок`, type: ActivityType.Competing }],
-  status: 'idle',
-});
+    // client.user is now defined
+    client.user.setPresence({
+        activities: [{ name: `Реестр блокировок`, type: ActivityType.Watching }],
+        status: 'idle',
+    });
 });

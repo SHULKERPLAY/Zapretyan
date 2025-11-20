@@ -3,16 +3,16 @@ const path = require('path');
 
 //read content from file
 fs.readFile(path.join(__dirname,'send.txt'), 'utf8', (err, data) => {
-  if (err) {
-    console.error(err);
-    return;
-}
+    if (err) {
+        console.error(err);
+        return;
+    }
 //read destination chat id from file
 fs.readFile(path.join(__dirname,'var/cid'), 'utf8', (err, cid) => {
-  if (err) {
-    console.error(err);
-    return;
-}
+    if (err) {
+        console.error(err);
+        return;
+    }
 
 // Require the necessary discord.js classes
 const { ActivityType, Client, Events, GatewayIntentBits, Channels, Channel, Send } = require('discord.js');
@@ -26,14 +26,14 @@ client.once(Events.ClientReady, readyClient => {
 
 // Log in to Discord with your client's token
 client.login(token).then((token) => {
-// client.user is now defined
-async function sendData() {
-  await client.channels.fetch(cid).then(channel => {
-  channel.send(data);
-});
-client.destroy();
-}
-sendData()
+    // client.user is now defined
+    async function sendData() {
+        await client.channels.fetch(cid).then(channel => {
+            channel.send(data);
+        });
+    client.destroy();
+    }
+    sendData()
 });
 });
 });
