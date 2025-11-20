@@ -1,35 +1,38 @@
+
 ![Запретян <3](https://github.com/SHULKERPLAY/Zapretyan/blob/main/zapretyanrepo.png)
 > Readme is only available in russian
 
 > Обновления репозитория [перестанут выходить вплоть до 2027 года, подробности в патче 1.3](https://github.com/SHULKERPLAY/Zapretyan/releases/tag/1.3)
 
+**Теперь можно пользоваться поиском блокировок в Discord с помощью нашего бота Запретян!** [Посмотрите подробности](https://lunarcreators.ru/zapretyan/app/) или [установите бота на любой свой сервер из магазина приложений](https://discord.com/discovery/applications/907372459144147035)! *Бота также можно [установить напрямую](https://discord.com/oauth2/authorize?client_id=907372459144147035&permissions=277025410048&integration_type=0&scope=bot)*
+
 # Запретян / Zapretyan
-[![CodeFactor](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/badge/main)](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/overview/main) ![GitHub Release](https://img.shields.io/github/v/release/shulkerplay/zapretyan) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/shulkerplay/zapretyan) ![Discord](https://img.shields.io/discord/683814496942424078?label=Discord) ![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UCWoypHEOaTh6N9zwCtRzr0w) 
+[![CodeFactor](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/badge/main)](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/overview/main) ![GitHub Release](https://img.shields.io/github/v/release/shulkerplay/zapretyan) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/shulkerplay/zapretyan) ![Discord](https://img.shields.io/discord/683814496942424078?label=Discord) ![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UCWoypHEOaTh6N9zwCtRzr0w) ![Website](https://img.shields.io/website?url=https%3A%2F%2Flunarcreators.ru&link=https%3A%2F%2Flunarcreators.ru)
+![Bot Uptime (30 days)](https://img.shields.io/uptimerobot/ratio/m797417008-25ccd350ca5e2f9624767928?link=m797417008-25ccd350ca5e2f9624767928)
 
 **Вывод новых блокировок ресурсов в Российской Федерации каждый день!**  
 
-Запретян - это набор скриптов работающий на Debian/Ubuntu, который собирает данные о блокировках и сравнивает их с предыдущими сохранёнными данными.  
+Запретян - это набор скриптов работающий на Debian/Ubuntu, который собирает данные о блокировках и каждый день подробно (или кратко в цифрах) сообщает о изменениях в реестре блокировок за день в Discord с помощью Discord бота!
 
-Запретян создана для работы с Discord ботом. Существует [упрощенная версия](https://github.com/SHULKERPLAY/Zapretyan-Lite), посылающаяя сообщения через вебхуки.
+Запретян создана **для работы с Discord ботом**. Существует [упрощенная версия](https://github.com/SHULKERPLAY/Zapretyan-Lite), посылающаяя сообщения через вебхуки.
 
 ## Функции
  - Сбор аналитики: Дата и количество блокировок/разбанов
- - Вывод полного списка нововведений реестра блокировок в разные чаты с
-   разными оповещениями с помощью собственного бота. Всё зависит от
-   вашей конфигурации
+ - Вывод полного списка банов и разбанов из реестра блокировок в разные чаты с
+   разными оповещениями, а также краткий вывод в цифрах с помощью собственного бота. Всё зависит от вашей конфигурации
  - Рассчитан на запуск раз в сутки с помощью systemd или Cron.
 
 ## Зависимости
 
- - Debian 12 или [новее](https://www.debian.org/releases/trixie) (О совместимости с Ubuntu неизвестно, только
-   пробовать...)
+ - Debian 12 или Ubuntu 22 (Может заработать и на чуть более старых)
  - wget
  - node.js >= `18.0.0`
  - npm >= `9.0.0`
+   - Discord.js `14.16.3` или новее
  - git
 
 ## Обновление
-Общего способа нет, для обновления можно перезаписать все файлы скрипта которые у вас есть. Вам придётся сохранить и вручную вставить старую конфигурацию `shell/config.cfg` чтобы переместить её в новую версию
+Для обновления вручную можно перезаписать все файлы скрипта которые у вас есть. Вам придётся сохранить и вручную вставить старую конфигурацию `shell/config.cfg` чтобы переместить её в новую версию
 
 Чтобы автоматически обновиться **(Работает только если вы не переименовали папки `shell` и `sender`)**
 
@@ -78,7 +81,9 @@
 Распакуйте его  
   
 `tar -xf zapretyan.tar`  или `unzip zapretyan.zip`
-  
+
+Для полностью ручной установки читаем пункт **"Или устанавливаем сервис вручную"**
+
 Для автоматической настройки системного юнита и зависимостей запустите с повышенными привилегиями `service_install.sh` и следуйте инструкциям  
 
     sudo ./service_install.sh 
@@ -272,8 +277,8 @@
    
    Самостоятельно можно запустить из `exec.sh multiembed`, но не рекомендуется.
    
- - `index.js` - Код ядра Запретян для работы с [нашим сервером Discord](https://discord.gg/e2HcXrQ).
-   Корректно работает только с `sources=antifilter`!
+ - `index.js`, `botstats.js` - Код ядра Запретян на котором работает [наш Discord бот/Приложение](https://lunarcreators.ru/zapretyan/app/), он публичный и установлен на [нашем сервером Discord](https://discord.gg/e2HcXrQ).
+   Корректно работает только с `sources=antifilter`, `istotal=true`!
 
 ## Конфигурация
 ### Описание shell/config.cfg
@@ -285,6 +290,7 @@
     unbancid=("00000000000000000")
     banipcid=("00000000000000000")
     unbanipcid=("00000000000000000")
+    totalcid=("00000000000000000")
 
 `bancid` - id чатов Discord в которые будут выводиться все новые блокировки с прошлого сравнения
 
@@ -294,12 +300,15 @@
 
 `unbanipcid` - id чатов Discord в которые будут выводиться случайные ip адреса, разблокированные с прошлого сравнения
 
+`totalcid` - id чатов Discord в которые будет выводиться сообщение со статистикой сколько доменов и ip адресов было заблокировано/разблокировано всего/сегодня.
+
 Для рассылки в несколько чатов на одном или нескольких серверах, бот должен присутствовать на серверах и иметь доступ к чатом. Файл конфигурации будет выглядеть так:
 
     bancid=("000000000000000000" "111111111111111111")
     unbancid=("00000000000000000" "111111111111111111")
     banipcid=("00000000000000000" "111111111111111111")
     unbanipcid=("00000000000000000" "111111111111111111")
+    totalcid=("00000000000000000" "111111111111111111")
 
 При этом вы можете указать таким образом несколько чатов, и их количество может быть разное для каждой категории
 
@@ -307,12 +316,14 @@
     unbancid=("00000" "11111" "22222")
     banipcid=("00000" "11111")
     unbanipcid=("00000")
+    totalcid=("00000" "11111" "22222" "44444")
 
 > Само собой все числа в кавычках это ID чатов на серверах. В них будет дублироваться весь сгенерированный вывод по очереди, поэтому в зависимости от количества блокировок и чатов, вывод во все чаты будет длиться дольше.
 
     isban=true
     isunban=true
     isbanip=true
+    isunbanip=true
     isunbanip=true
 
 `isban` - отключает любые отправки в чат `bancid`
@@ -322,6 +333,8 @@
 `isbanip` - отключает любые отправки в чат `banipcid`
 
 `isunbanip` - отключает любые отправки в чат `unbanipcid`
+
+`istotal` - отключает любые отправки в чат `totalcid`
 
 `errorsend=true` - Переключатель вывода сервисных сообщений, например, когда с прошлого дня не произошло никаких изменений
 
@@ -334,6 +347,8 @@
 `unbanipclr` - Устанавливает цвет полосы встроенного сообщения для чата `banipcid`
 
 `unbanipclr` - Устанавливает цвет полосы встроенного сообщения для чата `unbanipcid`
+
+`totalclr` - Устанавливает цвет полосы встроенного сообщения для чата `totalcid`
 
 Указывается в форме `banclr=ff5e5e` - это 6 символов HEX значения нужного цвета.
 
@@ -443,5 +458,12 @@
 Статусы меняются в следующей строке `status: 'online',`
 
 [О статусах в DiscordJS](https://discord.js.org/docs/packages/discord.js/main/PresenceStatus:TypeAlias)
+
+# Прочее
+
+ - [Страница Запретян на нашем сайте](https://lunarcreators.ru/zapretyan)
+ - [Страница приложения Запретян на нашем сайте](https://lunarcreators.ru/zapretyan/app)
+ - [Бот Запретян в магазине приложений Discord](https://discord.com/discovery/applications/907372459144147035)
+ - [Запретян Лайт!](https://github.com/SHULKERPLAY/Zapretyan-Lite)
 
 Буду рад любой поддержке, связаться со мной можно на [нашем сервере Discord](https://discord.gg/e2HcXrQ)
