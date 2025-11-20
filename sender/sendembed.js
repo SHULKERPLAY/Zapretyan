@@ -46,7 +46,7 @@ const banEmbed = new EmbedBuilder()
     .setColor(color)
     .setTitle(fieldname)
     .setDescription(data)
-    .setAuthor({ name: 'Запретян <3', iconURL: 'https://cdn.discordapp.com/avatars/907372459144147035/2771cf414eececfd9818a4dce423f7fc?size=256', url: 'https://github.com/SHULKERPLAY' })
+    .setAuthor({ name: 'Запретян <3', iconURL: 'https://cdn.discordapp.com/avatars/907372459144147035/2771cf414eececfd9818a4dce423f7fc?size=256', url: 'https://discord.com/discovery/applications/907372459144147035' })
     .setTimestamp()
     .setFooter({ text: 'С любовью, @shulkerplay' });
 async function sendData() {

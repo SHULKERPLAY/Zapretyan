@@ -48,7 +48,7 @@ exit 1
 fi
 
 #special chars
-if [[ ! "$1" =~ ^[a-zA-Z0-9.-]*$ ]]; then
+if [[ ! "$1" =~ ^[ёа-яa-zA-Z0-9.-]*$ ]]; then
         echo ':red_circle: Недопустимый символ в __**'$1'**__.' > $tempdir/$reqid
     exit 1
 else
@@ -79,7 +79,7 @@ if [ "$rescount" -lt "1" ]; then
     exit 0
 else
     if [ "$rescount" -lt "6" ]; then
-        if [ -z "$(echo "$resolve" | grep -e "^$domain$")"]; then
+        if [ -z "$(echo "$resolve" | grep -e "^$domain$")" ]; then
             match='эти домены'
         else
             match='точное совпадение **`'$domain'`**, все совпадения'

@@ -10,6 +10,8 @@
 
 Запретян - это набор скриптов работающий на Debian/Ubuntu, который собирает данные о блокировках и сравнивает их с предыдущими сохранёнными данными.  
 
+Запретян создана для работы с Discord ботом. Существует [упрощенная версия](https://github.com/SHULKERPLAY/Zapretyan-Lite), посылающаяя сообщения через вебхуки.
+
 ## Функции
  - Сбор аналитики: Дата и количество блокировок/разбанов
  - Вывод полного списка нововведений реестра блокировок в разные чаты с
@@ -64,7 +66,7 @@
   
 Скачайте архив из последнего релиза  
 
-    wget -O zapretyan.tar 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.3/zapretyan.tar'
+    wget -O zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.3/zapretyan.tar.gz'
 
   
 Или скачайте архив репозитория  
