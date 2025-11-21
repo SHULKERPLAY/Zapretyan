@@ -1,10 +1,9 @@
-
 ![Запретян <3](https://github.com/SHULKERPLAY/Zapretyan/blob/main/zapretyanrepo.png)
 > Readme is only available in russian
 
 > Обновления репозитория [перестанут выходить вплоть до 2027 года, подробности в патче 1.3](https://github.com/SHULKERPLAY/Zapretyan/releases/tag/1.3)
 
-**Теперь можно пользоваться поиском блокировок в Discord с помощью нашего бота Запретян!** [Посмотрите подробности](https://lunarcreators.ru/zapretyan/app/) или [установите бота на любой свой сервер из магазина приложений](https://discord.com/discovery/applications/907372459144147035)! *Бота также можно [установить напрямую](https://discord.com/oauth2/authorize?client_id=907372459144147035&permissions=277025410048&integration_type=0&scope=bot)*
+**Теперь можно пользоваться поиском блокировок интернет ресурсов в РФ из Discord с помощью нашего бота Запретян!** [Посмотрите подробности](https://lunarcreators.ru/zapretyan/app/) или [установите бота на любой свой сервер из магазина приложений](https://discord.com/discovery/applications/907372459144147035)! *Бота также можно [установить напрямую](https://discord.com/oauth2/authorize?client_id=907372459144147035&permissions=277025410048&integration_type=0&scope=bot)*
 
 # Запретян / Zapretyan
 [![CodeFactor](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/badge/main)](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/overview/main) ![GitHub Release](https://img.shields.io/github/v/release/shulkerplay/zapretyan) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/shulkerplay/zapretyan) ![Discord](https://img.shields.io/discord/683814496942424078?label=Discord) ![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UCWoypHEOaTh6N9zwCtRzr0w) ![Website](https://img.shields.io/website?url=https%3A%2F%2Flunarcreators.ru&link=https%3A%2F%2Flunarcreators.ru)
@@ -12,15 +11,30 @@
 
 **Вывод новых блокировок ресурсов в Российской Федерации каждый день!**  
 
-Запретян - это набор скриптов работающий на Debian/Ubuntu, который собирает данные о блокировках и каждый день подробно (или кратко в цифрах) сообщает о изменениях в реестре блокировок за день в Discord с помощью Discord бота!
+Запретян - это набор скриптов работающий на Debian/Ubuntu, который собирает данные о блокировках интернет ресурсов в РФ и каждый день подробно (или кратко в цифрах) сообщает о изменениях в реестре блокировок за день в Discord с помощью Discord бота!
 
 Запретян создана **для работы с Discord ботом**. Существует [упрощенная версия](https://github.com/SHULKERPLAY/Zapretyan-Lite), посылающаяя сообщения через вебхуки.
+
+ - [Функции](#%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B8)
+ - [Зависимости](#%D0%B7%D0%B0%D0%B2%D0%B8%D1%81%D0%B8%D0%BC%D0%BE%D1%81%D1%82%D0%B8)
+ - [Обновление](#%D0%BE%D0%B1%D0%BD%D0%BE%D0%B2%D0%BB%D0%B5%D0%BD%D0%B8%D0%B5)
+   - [Вручную](#%D0%B2%D1%80%D1%83%D1%87%D0%BD%D1%83%D1%8E)
+ - [Установка](#%D1%83%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0)
+   - [Вручную](#%D0%B8%D0%BB%D0%B8-%D1%83%D1%81%D1%82%D0%B0%D0%BD%D0%B0%D0%B2%D0%BB%D0%B8%D0%B2%D0%B0%D0%B5%D0%BC-%D1%81%D0%B5%D1%80%D0%B2%D0%B8%D1%81-%D0%B2%D1%80%D1%83%D1%87%D0%BD%D1%83%D1%8E)
+ - [Дополнительные функции](#%D0%B4%D0%BE%D0%BF%D0%BE%D0%BB%D0%BD%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5-%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B8)
+ - [Конфигурация](#%D0%9A%D0%BE%D0%BD%D1%84%D0%B8%D0%B3%D1%83%D1%80%D0%B0%D1%86%D0%B8%D1%8F)
+   - [Пример упрощённой конфигурации](#%D0%BF%D1%80%D0%B8%D0%BC%D0%B5%D1%80-%D1%83%D0%BF%D1%80%D0%BE%D1%89%D1%91%D0%BD%D0%BD%D0%BE%D0%B9-%D0%BA%D0%BE%D0%BD%D1%84%D0%B8%D0%B3%D1%83%D1%80%D0%B0%D1%86%D0%B8%D0%B8)
+ - [Известные недочёты](#%D0%B8%D0%B7%D0%B2%D0%B5%D1%81%D1%82%D0%BD%D1%8B%D0%B5-%D0%BD%D0%B5%D0%B4%D0%BE%D1%87%D1%91%D1%82%D1%8B)
+ - [Настройка постоянного онлайна бота](#%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-%D0%BF%D0%BE%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BE%D0%BD%D0%BB%D0%B0%D0%B9%D0%BD%D0%B0-%D0%B1%D0%BE%D1%82%D0%B0)
+ - [Прочее](#%D0%BF%D1%80%D0%BE%D1%87%D0%B5%D0%B5)
 
 ## Функции
  - Сбор аналитики: Дата и количество блокировок/разбанов
  - Вывод полного списка банов и разбанов из реестра блокировок в разные чаты с
    разными оповещениями, а также краткий вывод в цифрах с помощью собственного бота. Всё зависит от вашей конфигурации
  - Рассчитан на запуск раз в сутки с помощью systemd или Cron.
+
+[Демонстрация и скриншоты](https://lunarcreators.ru/zapretyan)
 
 ## Зависимости
 
@@ -50,7 +64,7 @@
 
 Качаем и распаковываем с заменой последний релиз *(Обращу внимание что с версии 1.2 релизы публикуются в архивах GZIP)*
 
-    wget -t 5 -O Zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.3/zapretyan.tar.gz' && tar -xf Zapretyan.tar.gz && rm Zapretyan.tar.gz
+    wget -t 5 -O Zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.4/zapretyan.tar.gz' && tar -xf Zapretyan.tar.gz && rm Zapretyan.tar.gz
 
 Возвращаем старый токен бота
 
@@ -69,7 +83,7 @@
   
 Скачайте архив из последнего релиза  
 
-    wget -O zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.3/zapretyan.tar.gz'
+    wget -O zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.4/zapretyan.tar.gz'
 
   
 Или скачайте архив репозитория  
@@ -354,10 +368,10 @@
 
 > Так если мы хотим поставить чистый красный #ff0000 значение будет `banclr=ff0000`
 
-`analytics=true` - Переключатель сбора аналитики. Она не выгружается в сеть, собирает в таблицу данные: Дата, кол-во блокировок, кол-во разбанов, всего заблокировано. Сохраняется в `shell/analytics.csv`
+`analytics=true` - Переключатель сбора аналитики. Она **НЕ** выгружается в сеть, собирает в таблицу данные: Дата, кол-во блокировок, кол-во разбанов, всего заблокировано. Сохраняется в `shell/analytics.csv`
 
 `sources=antifilter` - Возможные значения: `antifilter`, `github`
-При `antifilter` значения берутся с сервиса [antifilter.download](https://antifilter.download/) и сравниваются чистые текстовые данные. Не требует ничего и менять его стоит только если он перестал работать.
+При `antifilter` значения берутся с сервиса [antifilter.download](https://antifilter.download/) и сравниваются чистые текстовые данные. **Не требует ничего и менять его стоит только если он перестал работать.**
 
 При `github` применяется старая система сравнения. Данные берутся из [Nidelon/ru-block-v2ray-rules](https://github.com/Nidelon/ru-block-v2ray-rules). Надежда была на то, что если antifilter прекратит свою работу, а я не смогу поддерживать этот репозиторий, то с малой долей вероятности этот репозиторий перейдёт на экспорт данных из другого места и скрипт сможет работать без переработки. Это устаревший метод, но я решил его оставить.
 Во избежании ошибок, при переключении на `github` удалите в папке shell файлы `newip.txt` и `oldip.txt`
@@ -389,6 +403,22 @@
     21.05.2025 ; 1667 ; 118 ; 831954
     22.05.2025 ; 1772 ; 95 ; 833631
     23.05.2025 ; 1573 ; 47 ; 835157
+
+### Пример упрощённой конфигурации
+Так, если, например, вы не хотите подробный список, а хотите одно сообщение со статистикой, ваши настройки будут выглядеть так:
+
+	isban=false
+	isunban=false
+	isbanip=false
+	isunbanip=false
+	isunbanip=true
+	
+	bancid=("000000000000000000")
+	unbancid=("00000000000000000")
+	banipcid=("00000000000000000")
+	unbanipcid=("00000000000000000")
+	totalcid=("1322571237284778066")
+![istotal=true](https://lunarcreators.ru/wp-content/uploads/2025/11/zapdemo2.webp)
 
 ## Известные недочёты
 

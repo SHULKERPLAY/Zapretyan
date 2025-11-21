@@ -88,7 +88,7 @@ else
         exit 0
     else
         firstresult=$(echo $resolve | awk '{print $1}')
-        if [ -z "$(echo "$resolve" | grep -e "^$domain$")"]; then
+        if [ -z "$(echo "$resolve" | grep -e "^$domain$")" ]; then
             match='__'$firstresult'__'
         else
             match='точное совпадение **`'$domain'`**'

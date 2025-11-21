@@ -44,7 +44,7 @@ client.login(token).then((token) => {
         .setColor(color)
         .setTitle(fieldname)
         .setDescription(data)
-        .setAuthor({ name: 'Запретян <3', iconURL: 'https://cdn.discordapp.com/avatars/907372459144147035/2771cf414eececfd9818a4dce423f7fc?size=256', url: 'https://discord.com/discovery/applications/907372459144147035' })
+        .setAuthor({ name: 'Запретян <3', iconURL: 'https://lunarcreators.ru/wp-content/uploads/2025/11/discordiconmini.webp', url: 'https://discord.com/discovery/applications/907372459144147035' })
         .setTimestamp()
         .setFooter({ text: 'С любовью, @shulkerplay' });
     async function sendData() {
