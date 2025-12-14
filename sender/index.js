@@ -1,4 +1,4 @@
-const corever = 'v1.4.13';
+const corever = 'v1.4.16';
 const forbiddenChars = /['",:;<>?!@#$%^&*(){}|\[\]\/\\]/;
 //Statistics
 const { loadStats, incrementStat, statsAutoSave } = require('./botstats.js');
@@ -41,26 +41,36 @@ client.once(Events.ClientReady, readyClient => {
     incrementStat('botlogin');
 });
 
-const ping = {
-  name: 'ping',
-  description: 'Пингует бота и показывает задержку'
-};
-const about = {
-  name: 'about',
-  description: 'Подробная информация о приложении'
-};
+const ping = new SlashCommandBuilder()
+    .setName('ping')
+    .setDescription('Проверка скорости ответа приложения')
+    .setIntegrationTypes(0, 1)
+    .setContexts(0, 1)
+  
+const about = new SlashCommandBuilder()
+    .setName('about')
+    .setDescription('Подробная информация о приложении')
+    .setIntegrationTypes(0, 1)
+    .setContexts(0, 1)
+  
 const invite = {
   name: 'invite',
-  description: 'Добавить Запретян на свой сервер!'
+  description: 'Установить запретян на сервер или как личное приложение!'
 };
-const total = {
-  name: 'total',
-  description: 'Посмотреть количество заблокированных доменов и IP адресов'
-};
+
+const total = new SlashCommandBuilder()
+    .setName('total')
+    .setDescription('Посмотреть количество заблокированных доменов и IP адресов')
+    .setIntegrationTypes(0, 1)
+    .setContexts(0, 1, 2)
 
 const bancheck = new SlashCommandBuilder()
     .setName('bancheck')
     .setDescription('Проверка наличия домена или IP адреса в реестре Роскомнадзора')
+// Interaction work with 0 - Guild Install, 1 - User Install
+    .setIntegrationTypes(0, 1)
+// Interaction can be used in 0 - Guild Channels, 1 - DM with bot, 2 - Group or Private user DM's
+    .setContexts(0, 1, 2)
     .addStringOption(option =>
         option.setName('type')
             .setDescription('Блокировку чего нужно проверить? Домена/Сайта или IP адреса?')
@@ -96,7 +106,7 @@ client.on('interactionCreate', (interaction) => {
   } else if (interaction.commandName === 'invite') {
         incrementStat('invitecmd');
         interaction.reply({
-            content: `:gift_heart: [Нажмите для добавления бота на сервер](https://discord.com/oauth2/authorize?client_id=907372459144147035&permissions=277025410048&integration_type=0&scope=bot) или [Добавьте через магазин приложений](https://discord.com/discovery/applications/907372459144147035) \n\n:bangbang: *Это **НЕ рассылки**! На вашем сервере будут доступны слеш-команды для поиска по реестру РКН. Для реализации ежедневных рассылок для вашего сервера свяжитесь с разработчиком.*`,
+            content: `:gift_heart: [Нажмите для добавления бота на сервер](https://discord.com/oauth2/authorize?client_id=907372459144147035&permissions=277025410048&integration_type=0&scope=bot) или [Добавьте через магазин приложений на сервер или как личное приложение](https://discord.com/discovery/applications/907372459144147035)! \n*Установка в свои приложения даёт доступ к функциям поиска запретян в любом чате сервера и ЛС.* \n\n:bangbang: *Это **НЕ рассылки**! На вашем сервере будут доступны слеш-команды для поиска по реестру РКН. Для реализации ежедневных рассылок для вашего сервера свяжитесь с разработчиком.*`,
             ephemeral: true,
     });
   } else if (interaction.commandName === 'total') {
@@ -172,7 +182,7 @@ client.on('interactionCreate', (interaction) => {
     await client.rest.put(Routes.applicationCommands(client.user.id), { body: commands });
 
     client.user.setPresence({
-    activities: [{ name: `/about - Запретян`, type: ActivityType.Listening }],
+    activities: [{ name: `/about • Запретян`, type: ActivityType.Listening }],
     status: 'online',
     });
 })();
