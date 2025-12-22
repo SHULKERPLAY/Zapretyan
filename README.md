@@ -454,12 +454,19 @@
 
     [Unit]
     Description=Discord bot status daemon
+    After=network-online.target
+    StartLimitIntervalSec=1000
+    StartLimitBurst=10
+    
     [Service]
+    Restart=on-failure
+    RestartSec=60s
     ExecStart=/bin/bash /root/zapretyan/sender/exec.sh online
+    
     [Install]
     WantedBy=multi-user.target
 
-Где вместо `/root/zapretyan/sender/exec.sh` вы должны вписать путь к **вашему** расположению скрипта
+Где вместо `/root/zapretyan/sender/exec.sh` вы должны вписать путь к **вашему** расположению скрипта. Если бот крашнется по какой-то причине, то перезапустится через 60 секунд автоматически (Для версии не ниже 1.4.1). Если бот крашнется `StartLimitBurst` раз за `StartLimitIntervalSec` секунд, то попытки перезапустить скрипт прекратятся. Ждёт запуска сети `network-online.target`
 
 **Устанавливаем службу**  
 

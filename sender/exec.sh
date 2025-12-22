@@ -1,21 +1,30 @@
 nodedir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $nodedir
 if [ "$1" = "index" ]; then
-node index.js && exit
+node index.js
+echo 'Exited.'
+exit 1
 fi
 if [ "$1" = "multiembed" ]; then
-node multiembed.js && exit
+node multiembed.js
+exit
 fi
 if [ "$1" = "online" ]; then
-node online.js && exit
+node online.js
+echo 'Exited.'
+exit 1
+exit
 fi
 if [ "$1" = "send" ]; then
-node send.js && exit
+node send.js
+exit
 fi
 if [ "$1" = "sendembed" ]; then
-node sendembed.js && exit
+node sendembed.js
+exit
 fi
 if [ "$1" = "sendprivate" ]; then
-node sendprivate.js && exit
+node sendprivate.js
+exit
 fi
 echo 'Possible args: index, multiembed, online, send, sendembed, sendprivate.'
