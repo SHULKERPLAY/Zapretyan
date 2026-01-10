@@ -11,6 +11,7 @@ minlength=5
 maxlength=255
 reqid=$2
 index=$shdir/new.txt
+comindex=$shdir/community.txt
 ipindex=$shdir/newip.txt
 
 #temp cleanup
@@ -69,14 +70,15 @@ fi
 
 #Resolving
 resolve=$(grep $domain $index)
+resolvecom=$(grep $domain $comindex)
 
 #Count
 rescount=$(echo $resolve | wc -w)
+rescomcount=$(echo $resolvecom | wc -w)
 
 #result
 if [ "$rescount" -lt "1" ]; then
     echo ':green_heart: __'$domain'__ **не найден** в реестре блокировок РКН!' > $tempdir/$reqid
-    exit 0
 else
     if [ "$rescount" -lt "6" ]; then
         if [ -z "$(echo "$resolve" | grep -e "^$domain$")" ]; then
@@ -84,8 +86,7 @@ else
         else
             match='точное совпадение **`'$domain'`**, все совпадения'
         fi
-        echo ':orange_heart: Нашла в реестре РКН '$match': __'$(echo "$resolve" | sed ':a;N;$!ba;s/\n/__, __/g')'__.' > $tempdir/$reqid
-        exit 0
+        echo ':orange_heart: Нашла в **реестре РКН** '$match': __'$(echo "$resolve" | sed ':a;N;$!ba;s/\n/__, __/g')'__.' > $tempdir/$reqid
     else
         firstresult=$(echo $resolve | awk '{print $1}')
         if [ -z "$(echo "$resolve" | grep -e "^$domain$")" ]; then
@@ -93,7 +94,29 @@ else
         else
             match='точное совпадение **`'$domain'`**'
         fi
-        echo ':yellow_heart: Нашла в реестре РКН '$match' и ещё **'$(($rescount-1))' доменов**! Измените запрос для получения более точного или объёмного результата.' > $tempdir/$reqid
-        exit 0
+        echo ':yellow_heart: Нашла в **реестре РКН** '$match' и ещё **'$(($rescount-1))' доменов**! Измените запрос для получения более точного или объёмного результата.' > $tempdir/$reqid
     fi
 fi
+#Result from community
+if [ "$rescomcount" -lt "1" ]; then #Exit if not found
+    exit 0
+else
+    if [ "$rescomcount" -lt "6" ]; then
+        if [ -z "$(echo "$resolvecom" | grep -e "^$domain$")" ]; then #If equal value found in list
+            match='эти домены'
+        else
+            match='точное совпадение **`'$domain'`**, все совпадения'
+        fi
+        echo ':light_blue_heart: Нашла в **комьюнити-листе** '$match': __'$(echo "$resolvecom" | sed ':a;N;$!ba;s/\n/__, __/g')'__.' >> $tempdir/$reqid
+    else
+        #First domain from list of found
+        firstresult=$(echo $resolvecom | awk '{print $1}')
+        if [ -z "$(echo "$resolvecom" | grep -e "^$domain$")" ]; then #If equal value found in list
+            match='__'$firstresult'__'
+        else
+            match='точное совпадение **`'$domain'`**'
+        fi
+        echo ':light_blue_heart: Нашла в **комьюнити-листе** '$match' и ещё **'$(($rescomcount-1))' доменов**! Измените запрос для получения более точного результата.' >> $tempdir/$reqid
+    fi
+fi
+exit 0

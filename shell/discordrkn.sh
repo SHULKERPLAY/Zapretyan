@@ -9,6 +9,18 @@ e0x2='Ошибка загрузки сегодняшнего списка (0x2)'
 e0x3='Нет изменений в списке за сутки (0x3)'
 
 echo "Downloading Data from $sources"
+#Combined Community Data from Antifilter and Re:Filter
+if [ "$botmode" = true ]; then
+    sources=antifilter
+    wget -t 5 -T 300 -O $shdir/comantifilter.txt 'https://community.antifilter.download/list/domains.lst'
+    wget -t 5 -T 300 -O $shdir/comrefilter.txt 'https://raw.githubusercontent.com/1andrevich/Re-filter-lists/main/community.lst'
+    #Combine files without duplicating lines
+    sort -u comantifilter.txt comrefilter.txt > community.txt
+    rm $shdir/comantifilter.txt
+    rm $shdir/comrefilter.txt
+fi
+
+#Update lists from Antifilter
 if [ "$sources" = "antifilter" ]; then
     rm $shdir/old.txt
     rm $shdir/oldip.txt
@@ -17,6 +29,8 @@ if [ "$sources" = "antifilter" ]; then
     wget -t 5 -T 300 -O $shdir/new.txt 'https://antifilter.download/list/domains.lst'
     wget -t 5 -T 300 -O $shdir/newip.txt 'https://antifilter.download/list/ip.lst'
 fi
+
+#Update lists from Nidelon/ru-block-v2ray-rules
 if [ "$sources" = "github" ]; then
     wget -t 5 -O $shdir/v2ray.zip 'https://github.com/Nidelon/ru-block-v2ray-rules/archive/refs/heads/release.zip'
     unzip -o $shdir/v2ray.zip -d $shdir/
@@ -153,7 +167,9 @@ if [ "$istotal" = true ]; then
     totalipdiff=$(($totalipbanned-$totaloldipbanned))
     diffmsg=$(printf "%+d\n" "$totaldiff")
     diffipmsg=$(printf "%+d\n" "$totalipdiff")
-    echo -e '{"todayban":"'$bancount'","todayunban":"'$unbancount'","totalban":"'$totalbanned' `('$(printf "%+d\n" "$totaldiff")' за 24 часа)`","todayipban":"'$banipcount'","todayipunban":"'$unbanipcount'","totalipban":"'$totalipbanned' `('$(printf "%+d\n" "$totalipdiff")' за 24 часа)`"}' > $jsdir/var/stats
+    if [ "$botmode" = true ]; then
+        echo -e '{"todayban":"'$bancount'","todayunban":"'$unbancount'","totalban":"'$totalbanned' `('$(printf "%+d\n" "$totaldiff")' за 24 часа)`","rawtotalban":"'$totalbanned'","todayipban":"'$banipcount'","todayipunban":"'$unbanipcount'","totalipban":"'$totalipbanned' `('$(printf "%+d\n" "$totalipdiff")' за 24 часа)`","rawtotalipban":"'$totalipbanned'"}' > $jsdir/var/stats
+    fi
     echo ":pushpin: Статистика за $qdate" > $fieldname
     echo "$totalclr" > $embedcolor
     for totalsend in "${totalcid[@]}"; do
