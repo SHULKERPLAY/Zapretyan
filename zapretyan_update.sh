@@ -32,7 +32,7 @@ mv sender/config.json sender/config.json.old
 mv shell/config.cfg shell/config.old
 
 echo 'Downloading package'
-wget -t 5 -O Zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.3/zapretyan.tar.gz' && tar -xf Zapretyan.tar.gz && rm Zapretyan.tar.gz
+wget -t 5 -O Zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.4.2/zapretyan.tar.gz' && tar -xf Zapretyan.tar.gz && rm Zapretyan.tar.gz
 
 echo 'Restoring bot token'
 rm sender/config.json && mv sender/config.json.old sender/config.json
@@ -41,11 +41,42 @@ echo 'Restoring some values from old config'
 echo -e "#AUTOCONFIG. REMOVE LINES BELOW TO EDIT SAME VARIABLES ABOVE" >> shell/config.cfg
 echo -e "shdir=$shdir" >> shell/config.cfg
 echo -e "jsdir=$jsdir" >> shell/config.cfg
+echo -e "isban=$isban" >> shell/config.cfg
+echo -e "isunban=$isunban" >> shell/config.cfg
+echo -e "isbanip=$isbanip" >> shell/config.cfg
+echo -e "isunbanip=$isunbanip" >> shell/config.cfg
+if [ -z "$istotal" ]; then
+    echo -e "istotal=$istotal" >> shell/config.cfg
+fi
+echo -e "#Delete this if your script crashes" >> shell/config.cfg
+if [ -z "$banclr" ]; then
+    echo -e "banclr=$banclr" >> shell/config.cfg
+fi
+if [ -z "$unbanclr" ]; then
+    echo -e "unbanclr=$unbanclr" >> shell/config.cfg
+fi
+if [ -z "$banipclr" ]; then
+    echo -e "banipclr=$banipclr" >> shell/config.cfg
+fi
+if [ -z "$unbanipclr" ]; then
+    echo -e "unbanipclr=$unbanipclr" >> shell/config.cfg
+fi
+if [ -z "$totalclr" ]; then
+    echo -e "totalclr=$totalclr" >> shell/config.cfg
+fi
+echo -e "#END OF 'Delete this if your script crashes'" >> shell/config.cfg
+echo -e "errorsend=$errorsend" >> shell/config.cfg
 echo -e "errorping=$errorping" >> shell/config.cfg
 echo -e "bancid=$bancid" >> shell/config.cfg
 echo -e "unbancid=$unbancid" >> shell/config.cfg
 echo -e "banipcid=$banipcid" >> shell/config.cfg
 echo -e "unbanipcid=$unbanipcid" >> shell/config.cfg
-echo 'RESTORED: DIRS, PING IDs, CIDs'
+if [ -z "$totalcid" ]; then
+    echo -e "totalcid=$totalcid" >> shell/config.cfg
+fi
+echo -e "analytics=$analytics" >> shell/config.cfg
+echo -e "sources=$sources" >> shell/config.cfg
+
+echo 'RESTORED: Most of defined settings'
 
 echo -e "\n\n\nDone! Please edit $installpath/shell/config.cfg to match your needs\nOld config can be found in $installpath/shell/config.old\nRead changelog to check config syntax changes"

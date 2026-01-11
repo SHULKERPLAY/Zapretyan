@@ -42,7 +42,7 @@
  - wget
  - node.js >= `18.0.0`
  - npm >= `9.0.0`
-   - Discord.js `14.16.3` или новее
+   - Discord.js `14.16.3` (проверен) или новее
  - git
 
 ## Обновление
@@ -62,9 +62,9 @@
     mv sender/config.json sender/config.json.old
     mv shell/config.cfg shell/config.old
 
-Качаем и распаковываем с заменой последний релиз *(Обращу внимание что с версии 1.2 релизы публикуются в архивах GZIP)*
+Качаем и распаковываем с заменой последний релиз
 
-    wget -t 5 -O Zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.4/zapretyan.tar.gz' && tar -xf Zapretyan.tar.gz && rm Zapretyan.tar.gz
+    wget -t 5 -O Zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.4.2/zapretyan.tar.gz' && tar -xf Zapretyan.tar.gz && rm Zapretyan.tar.gz
 
 Возвращаем старый токен бота
 
@@ -83,7 +83,7 @@
   
 Скачайте архив из последнего релиза  
 
-    wget -O zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.4/zapretyan.tar.gz'
+    wget -O zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.4.2/zapretyan.tar.gz'
 
   
 Или скачайте архив репозитория  
@@ -404,6 +404,9 @@
     22.05.2025 ; 1772 ; 95 ; 833631
     23.05.2025 ; 1573 ; 47 ; 835157
 
+`botmode=false` - Если true: Принудительно устанавливает `sources=antifilter`, а также каждый день собирает общий комьюнити-лист блокировок в файле `community.txt`. Комьюнити-лист это комбинация списков от сообщества [Antifilter](https://community.antifilter.download) и [1andrevich/Re-filter-lists](https://github.com/1andrevich/Re-filter-lists). 
+Используется только для поиска доменов через нашего бота. Также включает экспорт данных `totalcid` в json `sender/var/stats`
+
 ### Пример упрощённой конфигурации
 Так, если, например, вы не хотите подробный список, а хотите одно сообщение со статистикой, ваши настройки будут выглядеть так:
 
@@ -459,6 +462,7 @@
     StartLimitBurst=10
     
     [Service]
+    KillSignal=SIGINT
     Restart=on-failure
     RestartSec=60s
     ExecStart=/bin/bash /root/zapretyan/sender/exec.sh online
