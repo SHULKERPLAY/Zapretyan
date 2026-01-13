@@ -165,8 +165,6 @@ if [ "$istotal" = true ]; then
     totaloldipbanned=$(wc -l < $shdir/oldip.txt)
     totaldiff=$(($totalbanned-$totaloldbanned))
     totalipdiff=$(($totalipbanned-$totaloldipbanned))
-    diffmsg=$(printf "%+d\n" "$totaldiff")
-    diffipmsg=$(printf "%+d\n" "$totalipdiff")
     if [ "$botmode" = true ]; then
         echo -e '{"todayban":"'$bancount'","todayunban":"'$unbancount'","totalban":"'$totalbanned' `('$(printf "%+d\n" "$totaldiff")' за 24 часа)`","rawtotalban":"'$totalbanned'","todayipban":"'$banipcount'","todayipunban":"'$unbanipcount'","totalipban":"'$totalipbanned' `('$(printf "%+d\n" "$totalipdiff")' за 24 часа)`","rawtotalipban":"'$totalipbanned'"}' > $jsdir/var/stats
     fi

@@ -414,7 +414,7 @@
 	isunban=false
 	isbanip=false
 	isunbanip=false
-	isunbanip=true
+	istotal=true
 	
 	bancid=("000000000000000000")
 	unbancid=("00000000000000000")
