@@ -2,7 +2,7 @@
 bashdir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 . $bashdir/config.cfg
 
-if [ -d $bashdir/sender ]; then
+if [ -d "$bashdir/sender" ]; then
     echo -e "Found sender. Skipping download"
 else
     wget -t 5 -O Zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.4.2/zapretyan.tar.gz' && tar -xf Zapretyan.tar.gz && rm Zapretyan.tar.gz
@@ -10,9 +10,9 @@ fi
 
 echo -e "Found $bashdir"
 echo Script uses relative paths - Checking files
-if [ -e $bashdir/sender/send.js ]; then
+if [ -e "$bashdir/sender/send.js" ]; then
     echo Found JS sender
-    if [ -e $bashdir/shell/discordrkn.sh ]; then
+    if [ -e "$bashdir/shell/discordrkn.sh" ]; then
         echo Found shell files
     else
         echo -e "ERROR. CANNOT FIND $bashdir/shell/discordrkn.sh . Aborting..."
@@ -24,35 +24,31 @@ else
 fi
 echo Check complete
 sleep 2
-clear
 
 echo Enter absolute path where zapretyan will be and we prepare all for you
 echo If you want to change path to dir in the future, you will need to change them in config.cfg
 echo e.g. /root/zapretyan
 read -r installpath
 
-mkdir $installpath
-if [ -d $installpath ]; then
+mkdir -p $installpath
+if [ -d "$installpath" ]; then
     echo -e "Directory Created ($installpath)"
 else
     echo -e "ERROR. CANNOT FIND $installpath . Do i have access to directory or my path is wrong?"
     exit 1
 fi
 sleep 2
-clear
 
-#curl -o- https://fnm.vercel.app/install | bash && source /root/.bashrc && fnm install 24
 while true; do
-    echo Zapretyan requires nodejs, npm, git, wget
+    echo Zapretyan requires node.js, npm, git, wget, curl, unzip
     read -r -p "Do you want to install dependencies? (Up to 430 MB of additional disk space can be used) Y/N" yn
     case $yn in
-        [Yy]* ) apt update && apt install npm nodejs git wget -y; break;;
+        [Yy]* ) apt update && apt install npm git wget curl unzip -y && curl -fsSL https://fnm.vercel.app/install | bash && source ~/.bashrc && fnm install 25 && echo -e "\nIF NODE NOT INSTALLED RE-LOGIN IN SSH AND TYPE 'fnm install 25'"; break;;
         [Nn]* ) break;;
         * ) echo "Please answer yes or no.";;
     esac
 done
 sleep 2
-clear
 
 echo If you change the method of parsing bans from antifilter to github, you will need additional binary to unpack .dat routing files
 echo You need wget to download this
@@ -65,30 +61,30 @@ while true; do
     esac
 done
 sleep 2
-clear
 
-echo Installing Zapretyan in 10 seconds...
-sleep 10
-    if [ -e $bashdir/sender/node_modules/.package-lock.json ]; then
-        echo Found node modules. Skipping...
-    else
-        echo Downloading node modules...
-		wget -t 5 -O sender/node.tar 'https://www.dropbox.com/scl/fi/6ug26cl0h5bx8vfrgr2kf/node_modules.tar?rlkey=dpr2vqn2hbeqrzm0d20ikxjf7&e=2&st=llm6v7x8&dl=1'
-		tar -xf sender/node.tar -C sender
-		rm sender/node.tar
-    fi
-
+echo Installing Zapretyan in 5 seconds...
+sleep 5
 echo Moving shell to install path...
 mv shell $installpath
 echo Moving sender to install path...
 mv sender $installpath
 echo Changing dir to install path...
-cd $installpath
+cd "$installpath"
+if [ -e $installpath/sender/package.json ]; then
+    echo Found package.json. Installing dependencies...
+    cd $installpath/sender
+    npm i
+else
+    echo package.json not found. Installing latest: discord.js, node-fetch
+    cd $installpath/sender
+    npm i discord.js
+    npm i node-fetch
+fi
 
 echo recheck files
-if [ -e $installpath/sender/send.js ]; then
+if [ -e "$installpath/sender/send.js" ]; then
     echo Found JS sender
-    if [ -e $installpath/shell/discordrkn.sh ]; then
+    if [ -e "$installpath/shell/discordrkn.sh" ]; then
         echo Found shell files
     else
         echo -e "ERROR. CANNOT FIND $installpath/shell/discordrkn.sh . Aborting..."
@@ -125,3 +121,4 @@ systemctl start zapretyan.timer
 echo -e "\n\n\nDone!\nEdit /etc/systemd/system/zapretyan.timer if you want to change time when checks are starting (Default: 8 AM).\nType 'systemctl status zapretyan.timer' to check if installation complete.\nsystemctl disable zapretyan.timer to stop service."
 echo -e "Now you need to edit $installpath/shell/config.cfg to enable notifications and setup your Discord channels ID"
 echo -e "AND INSERT YOUR BOT TOKEN IN $installpath/sender/config.json"
+cd "$bashdir" && rm zapretyan_update.sh && rm service_install.sh

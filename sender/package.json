@@ -1,0 +1,27 @@
+{
+  "name": "Zapretyan",
+  "version": "1.4.2",
+  "description": "Запретян - это набор скриптов работающий на Debian/Ubuntu, который собирает данные о блокировках интернет ресурсов в РФ и каждый день подробно (или кратко в цифрах) сообщает о изменениях в реестре блокировок за день в Discord с помощью Discord бота!",
+  "keywords": [
+    "discord-bot",
+    "russian-specific",
+    "roskomnadzor",
+    "blocklist-ru"
+  ],
+  "homepage": "https://github.com/SHULKERPLAY/Zapretyan#readme",
+  "bugs": {
+    "url": "https://github.com/SHULKERPLAY/Zapretyan/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SHULKERPLAY/Zapretyan.git"
+  },
+  "license": "GPL-3.0",
+  "author": "SHULKERPLAY",
+  "type": "commonjs",
+  "main": "index.js",
+  "dependencies": {
+    "discord.js": "14.25.1",
+    "node-fetch": "3.3.2"
+  }
+}

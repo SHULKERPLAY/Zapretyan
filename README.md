@@ -42,7 +42,7 @@
  - wget
  - node.js >= `18.0.0`
  - npm >= `9.0.0`
-   - Discord.js `14.16.3` (проверен) или новее
+   - Discord.js `14.25.1` (проверен) или новее
  - git
 
 ## Обновление
@@ -74,24 +74,24 @@
 
 ## Установка
 
-### Супербыстрая установка  
-**Вам понадобится Debian 12 или Ubuntu с установленным wget**  
+### Супербыстрая установка
+**Вам понадобится Debian 12 или Ubuntu с установленным wget.** Если в ходе установки не вышло установить node (Может произойти если вы не под root и используете sudo) - Посмотрите немного ниже строку "Устанавливаем node.js (Зависимость)"
 
     wget -O- 'https://raw.githubusercontent.com/SHULKERPLAY/Zapretyan/refs/heads/main/service_install.sh' | bash
 
-### Загрузка вручную  
+### Загрузка вручную
   
-Скачайте архив из последнего релиза  
+Скачайте архив из последнего релиза
 
     wget -O zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.4.2/zapretyan.tar.gz'
 
   
-Или скачайте архив репозитория  
-  
+Или скачайте архив репозитория
+
 
     wget -O zapretyan.zip 'https://github.com/SHULKERPLAY/Zapretyan/archive/refs/heads/main.zip'
 
-  
+
 Распакуйте его  
   
 `tar -xf zapretyan.tar`  или `unzip zapretyan.zip`
@@ -100,7 +100,7 @@
 
 Для автоматической настройки системного юнита и зависимостей запустите с повышенными привилегиями `service_install.sh` и следуйте инструкциям  
 
-    sudo ./service_install.sh 
+    sudo ./service_install.sh
 
 Добавляем токен своего Discord бота через которого будет идти общение с Discord. Редактируем sender/config.json в папке установки и вставляем в него свой токен  
 
@@ -115,10 +115,23 @@
 
 Устанавливаем зависимости
 
-    apt update && apt install npm nodejs git wget -y
+    apt update && apt install npm git wget curl unzip -y
+    
+Устанавливаем node.js (Зависимость)
+
+Ставим fnm
+
+    curl -fsSL https://fnm.vercel.app/install | bash
+
+Обновляем переменные оболочки (или перезаходим в SSH сессию)
+`source ~/.bashrc` *(или папка вашего пользователя вместо ~)*
+
+После этого для установки node 25.x.x вводим
+
+    fnm install 25
 
 Создаём директорию в которой будет работать запретян. И ложим туда папки shell и sender  
-Например  
+Например
 
     mkdir /root/zapretyan
     mv sender /root/zapretyan/sender 
@@ -152,48 +165,19 @@
 
 **Устанавливаем модуль Discord.js, совместимый со скриптом**
 
-> **В папке sender должна быть папка node_modules с Discord.js**
+> **В папке sender есть файл с зависимостями**
 
 Заходим в папку sender
 `cd sender`
 
-Скачиваем архив
-`wget -t 5 -O node.tar 'https://www.dropbox.com/scl/fi/6ug26cl0h5bx8vfrgr2kf/node_modules.tar?rlkey=dpr2vqn2hbeqrzm0d20ikxjf7&e=2&st=llm6v7x8&dl=1'`
+Если есть файл package.json
+`npm i`
 
-Распаковываем
-`tar -xf node.tar`
-
- Удаляем если появилась папка node_modules
-`rm node.tar`
+Если нет, то:
+`npm i discord.js && npm i node-fetch`
 
 И можно переходить далее
-**Или устанавливаем последний доступный**
-> Репозиторий работал в связке с Discord.js `14.16.3`
-
-    cd sender
-
-Устанавливаем Discord.js
-
-    npm install discord.js
-
-После этого он должен работать. DiscordJS очень часто обновляется, поэтому не могу гарантировать что он никогда не сломает этот скрипт.
-
-*Возможно вам понадобится версия node новее чем 18. Для обновления NodeJS вам, вероятнее всего, придётся использовать fnm*
-Ставим зависимости
-
-    apt install curl unzip
-
-Ставим fnm
-
-    wget -O- https://fnm.vercel.app/install | bash
-
-Обновляем переменные оболочки
-`source /root/.bashrc` *(или папка вашего пользователя вместо root)*
-
-После этого для установки node 24.x.x вводим
-
-    fnm install 24
-И можно переходить далее
+> Репозиторий работал в связке с Discord.js `14.16.3` или `14.25.1`
 
 **Не забудьте поменять [конфигурацию в shell/config.cfg](https://github.com/SHULKERPLAY/Zapretyan/tree/main?tab=readme-ov-file#%D0%BA%D0%BE%D0%BD%D1%84%D0%B8%D0%B3%D1%83%D1%80%D0%B0%D1%86%D0%B8%D1%8F).** А именно настройте опции `bancid`, `unbancid`, `banipcid`, `unbanipcid` и `errorping` по своему усмотрению
 
@@ -338,7 +322,7 @@
     isunban=true
     isbanip=true
     isunbanip=true
-    isunbanip=true
+    istotal=true
 
 `isban` - отключает любые отправки в чат `bancid`
 

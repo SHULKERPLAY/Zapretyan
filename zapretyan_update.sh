@@ -80,3 +80,4 @@ echo -e "sources=$sources" >> shell/config.cfg
 echo 'RESTORED: Most of defined settings'
 
 echo -e "\n\n\nDone! Please edit $installpath/shell/config.cfg to match your needs\nOld config can be found in $installpath/shell/config.old\nRead changelog to check config syntax changes"
+cd "$bashdir" && rm zapretyan_update.sh && rm service_install.sh
