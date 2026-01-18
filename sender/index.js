@@ -1,4 +1,4 @@
-const corever = 'v1.4.41';
+const corever = 'v1.4.48';
 const forbiddenChars = /['",:;<>?!@#$%^&*(){}|\[\]\/\\]/;
 //Statistics
 const { loadStats, incrementStat, statsAutoSave } = require('./botstats.js');
@@ -8,10 +8,11 @@ statsAutoSave(60);
 
 const fs = require('node:fs');
 const fspromises = require('node:fs/promises');
+const dns = require('node:dns/promises');
 const path = require('node:path');
 const { exec } = require("child_process");
 // Require the necessary discord.js classes
-const { Client, Routes, Events, GatewayIntentBits, ActivityType, setPrestnce, SlashCommandBuilder, MessageFlags } = require('discord.js');
+const { Client, Routes, Events, GatewayIntentBits, ActivityType, EmbedBuilder, SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { createInterface } = require('node:readline');
 const { token } = require('./config.json');
 
@@ -111,8 +112,40 @@ const bancheck = new SlashCommandBuilder()
         .setRequired(false));
     //end of publicreply
     
+const dnsdig = new SlashCommandBuilder()
+    .setName('dig')
+    .setDescription('🌐 Проверить IP адрес домена и другие данные (A, AAAA, CNAME, TXT, MX, NS или PTR записи)')
+// Interaction work with 0 - Guild Install, 1 - User Install
+    .setIntegrationTypes(0, 1)
+// Interaction can be used in 0 - Guild Channels, 1 - DM with bot, 2 - Group or Private user DM's
+    .setContexts(0, 1, 2)
+    .addStringOption(option =>
+        option.setName('type')
+            .setDescription('🌐 Какой тип доменной записи вы ищете?')
+            .setRequired(true)
+            .addChoices(
+                { name: '🌐 IPv4 адрес (A)', value: 'A' },
+                { name: '🌐 IPv6 адрес (AAAA)', value: 'AAAA' },
+                { name: '🌐 Синоним домена (CNAME)', value: 'CNAME' },
+                { name: '🌐 Почтовые записи (MX)', value: 'MX' },
+                { name: '🌐 Текстовые записи (TXT)', value: 'TXT' },
+                { name: '🌐 Сервера имён домена (NS)', value: 'NS' },
+                { name: '🌐 PTR Запись связи IP адреса с доменом (IPv4 адрес в домен)', value: 'PTR' },
+            ))
+    .addStringOption(option =>
+        option.setName('string')
+            .setDescription('🌐 Доменное имя (Например: example.com) или корректный IPv4 адрес (Например: 1.1.1.1)')
+            .setMinLength(5)
+            .setMaxLength(255)
+            .setRequired(true))
+    //decide if reply be ephemeral (publicreply: false / true)
+    .addBooleanOption(option =>
+        option.setName('публично')
+        .setDescription('❓ Будет ли результат виден всем в этом чате?')
+        .setRequired(false));
+    //end of publicreply
 
-const commands = [ping, bancheck, about, invite, total]; // Add your commands with commas to add them to the bot!
+const commands = [ping, bancheck, about, invite, total, dnsdig]; // Add your commands with commas to add them to the bot!
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
 
@@ -130,30 +163,59 @@ async function checkephemeral(interaction) {
     }
     return { publicreplylog: '', isephemeral: true };
 }
+//Embed constructor
+function createEmbed(title, data, footer, color) {
+    const authoricon = 'https://lunarcreators.ru/wp-content/uploads/2025/11/discordiconmini.webp'
+    const authorurl = 'https://discord.com/discovery/applications/907372459144147035'
+    //Check message length and truncate if necessary
+    const descriptioncontent = (data || '').length > 3800 ? data.substring(0, 3800) + "...\n```\nОтображаемый контент превышает 3800 символов!" : data;
+
+    const newembed = new EmbedBuilder()
+        .setColor(color.trim() || '00c8ff')
+        .setTitle(title)
+        .setDescription(descriptioncontent)
+        .setAuthor({ name: 'Запретян <3', iconURL: authoricon, url: authorurl })
+        .setTimestamp()
+        .setFooter({ text: footer || 'С любовью, @Zapretyan#2802' });
+    return newembed;
+}
 //interaction functions
 //common reply
-async function interactionreply(interaction, replycontent, isephemeral) {
-    //djs v14.15+ now using flags instead of 'ephemeral: true'
-    const replyflag = [];
-    if (isephemeral) replyflag.push(MessageFlags.Ephemeral);
-    //if (hideembeds) replyflag.push(MessageFlags.SuppressEmbeds);
-    await interaction.reply({
-        content: replycontent,
-        flags: replyflag,
-    });
+async function interactionreply(interaction, replycontent, isephemeral, embedcontent) {
+    try {
+        //djs v14.15+ now using flags instead of 'ephemeral: true'
+        const replyflag = [];
+        const replydata = (replycontent || '').length > 1900 ? replycontent.substring(0, 1900) + "...\n```\nОтображаемый контент превышает 1900 символов!" : replycontent;
+        if (isephemeral) replyflag.push(MessageFlags.Ephemeral);
+        //if (hideembeds) replyflag.push(MessageFlags.SuppressEmbeds);
+        await interaction.reply({
+            content: replydata || '',
+            embeds: embedcontent || [],
+            flags: replyflag,
+        });
+    } catch (error) {
+        console.error('Ошибка отправки сообщения:', error.message)
+    }
 }
 //common reply (deferred)
-async function interactioneditreply(interaction, replycontent, isephemeral) {
-    await interaction.editReply({
-        content: replycontent,
-    });
+async function interactioneditreply(interaction, replycontent, embedcontent) {
+    const replydata = (replycontent || '').length > 1900 ? replycontent.substring(0, 1900) + "...\n```\nОтображаемый контент превышает 1900 символов!" : replycontent;
+    try {
+        await interaction.editReply({
+            content: replydata || '',
+            embeds: embedcontent || [],
+        });
+    } catch (error) {
+        console.error('Ошибка именения ответа:', error.message)
+    }
 }
 //bancheck
-async function fbancheck(interaction, isephemeral, publicreplylog) {
+async function fbancheck(interaction, publicreplylog) {
     const search = interaction.options.getString('string');
+    //test for bad characters
     if (forbiddenChars.test(search)) {
         const replycontent = `:warning: **В запросе запрещено использовать специальные символы!**`
-        return await interactioneditreply(interaction, replycontent, true);
+        return await interactioneditreply(interaction, replycontent);
     }
     let mode;
     const reqid = Math.random();
@@ -175,8 +237,57 @@ async function fbancheck(interaction, isephemeral, publicreplylog) {
     } catch (error) {
         console.error('Failed to read file:', error);
     }
+    //Operator || counts undefined, null, 0, false and empty line as bad. While operator ?? counts as bad only undefined and null
     const replycontent = domaindata || `:warning: *Ошибка сервера. Обратитесь к администратору бота. Код: undefined_reply*`
-    interactioneditreply(interaction, replycontent, isephemeral);
+    interactioneditreply(interaction, replycontent);
+}
+//dnsdig
+async function fdig(interaction, publicreplylog) {
+    const type = interaction.options.getString('type');
+    const domain = interaction.options.getString('string');
+    //test for bad characters
+    if (forbiddenChars.test(domain)) {
+        const replycontent = `:warning: **В запросе запрещено использовать специальные символы!**`
+        return await interactioneditreply(interaction, replycontent);
+    }
+    console.log(`DNS Search: ${type} ${domain} ${publicreplylog}`)
+    incrementStat(`digcmd.${type}`);
+    const resolver = new dns.Resolver();
+    resolver.setServers(['1.1.1.1', '8.8.8.8'])
+    try {
+        if (type === 'A') {
+            const resolve = await resolver.resolve4(domain);
+            interactioneditreply(interaction, `4️⃣ Найдены A записи для __${domain}__: ${resolve.filter(Boolean).map(ip => `\`${ip}\``).join(', ')}`);
+        } else if (type === 'AAAA') {
+            const resolve = await resolver.resolve6(domain);
+            interactioneditreply(interaction, `6️⃣ Найдены AAAA записи для __${domain}__: ${resolve.filter(Boolean).map(ip => `\`${ip}\``).join(', ')}`);
+        } else if (type === 'CNAME') {
+            const resolve = await resolver.resolveCname(domain);
+            interactioneditreply(interaction, `💡 Найден синоним (CNAME) для __${domain}__: ${resolve.filter(Boolean).map(ip => `\`${ip}\``).join(', ')}`);
+        } else if (type === 'MX') {
+            const resolve = await resolver.resolveMx(domain);
+            reply = `\`\`\`\n${JSON.stringify(resolve, null, 2)}\n\`\`\``;
+            const replyembed = createEmbed(`✉️ Найдены MX записи для ${domain}`, reply, `${domain} IN MX`, 'ffa33b');
+            interactioneditreply(interaction, null, [replyembed]);
+        } else if (type === 'TXT') {
+            const resolve = await resolver.resolveTxt(domain);
+            interactioneditreply(interaction, `📒 Найдены текстовые (TXT) записи __${domain}__: ${resolve.filter(Boolean).map(ip => `\`${ip}\``).join(',\n')}`);
+        } else if (type === 'NS') {
+            const resolve = await resolver.resolveNs(domain);
+            interactioneditreply(interaction, `⚙️ Найдены сервера имён (NS) для __${domain}__: ${resolve.filter(Boolean).map(ip => `\`${ip}\``).join(',\n')}`);
+        } else if (type === 'PTR') {
+            try {
+                const resolve = await resolver.reverse(domain);
+                interactioneditreply(interaction, `🔄 Найдена PTR запись для __${domain.split('.').reverse().join('.') + ".in-addr.arpa"}__: ${resolve.filter(Boolean).map(ip => `\`${ip}\``).join(', ')}`);
+            } catch (ptrerror) {
+                interactioneditreply(interaction, `❌ Не найдена PTR запись для __${domain.split('.').reverse().join('.') + ".in-addr.arpa"}__`);
+                console.error('DNS Err:', ptrerror.message);
+            }
+        }
+    } catch (error) {
+        interactioneditreply(interaction, `❌ Не найдены **${type}** записи у __**${domain}**__`);
+        console.error('DNS Err:', error.message);
+    }
 }
 
 client.on('interactionCreate', async (interaction) => {
@@ -189,7 +300,7 @@ client.on('interactionCreate', async (interaction) => {
         incrementStat('pingcmd');
     } else if (interaction.commandName === 'about') {
         incrementStat('aboutcmd');
-        const replycontent = `:blue_heart: Помогаю с поисками в реестре блокировок! Начните поиск с помощью команды **/bancheck**. Пригласите на свой сервер с помощью **/invite**. Статистику по блокировкам сегодня можно посмотреть с помощью **/total**.\n:speech_left: Бот Запретян работает на базе https://github.com/SHULKERPLAY/Zapretyan (Оригинальная: \`Zapretyan#2802\`).\n:dizzy: *Версия ядра: ${corever}*\n:grey_question: Есть вопросы? [Посмотрите FAQ на Github](https://github.com/SHULKERPLAY/Zapretyan/wiki/%D0%A7%D0%B0%D1%81%D1%82%D0%BE-%D0%B7%D0%B0%D0%B4%D0%B0%D0%B2%D0%B0%D0%B5%D0%BC%D1%8B%D0%B5-%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B) или [на нашем сайте!](https://lunarcreators.ru/zapretyan/app/) \n:gift_heart: [Сервер поддержки](https://discord.gg/e2HcXrQ) - <@459657842895486977> \n\n-# [Условия использования](https://lunarcreators.ru/zapretyan/app/tos/) и [Политика Конфиденциальности](https://lunarcreators.ru/zapretyan/app/privacy/)`
+        const replycontent = `:blue_heart: Помогаю с поисками в реестре блокировок! Начните поиск с помощью команды **/bancheck**. Ищите IP адрес и записи сайта при помощи **/dig**! Пригласите на свой сервер с помощью **/invite**. Статистику по блокировкам сегодня можно посмотреть с помощью **/total**.\n:speech_left: Бот Запретян работает на базе https://github.com/SHULKERPLAY/Zapretyan (Оригинальная: \`Zapretyan#2802\`).\n:dizzy: *Версия ядра: ${corever}*\n:grey_question: Есть вопросы? [Посмотрите FAQ на Github](https://github.com/SHULKERPLAY/Zapretyan/wiki/%D0%A7%D0%B0%D1%81%D1%82%D0%BE-%D0%B7%D0%B0%D0%B4%D0%B0%D0%B2%D0%B0%D0%B5%D0%BC%D1%8B%D0%B5-%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B) или [на нашем сайте!](https://lunarcreators.ru/zapretyan/app/) \n:gift_heart: [Сервер поддержки](https://discord.gg/e2HcXrQ) - <@459657842895486977> \n\n-# [Условия использования](https://lunarcreators.ru/zapretyan/app/tos/) и [Политика Конфиденциальности](https://lunarcreators.ru/zapretyan/app/privacy/)`
         await interactionreply(interaction, replycontent, true);
     } else if (interaction.commandName === 'invite') {
         incrementStat('invitecmd');
@@ -199,10 +310,15 @@ client.on('interactionCreate', async (interaction) => {
         incrementStat('totalcmd');
         const replycontent = `**__ДОМЕНЫ__**\n:fire: Сегодня заблокировано: __${banstats.todayban}__\n:large_blue_diamond: Сегодня разблокировано: __${banstats.todayunban}__\n:no_entry_sign: **Всего заблокировано: ${banstats.totalban}**\n\n**__IP АДРЕСА__**\n:orange_circle: Сегодня заблокировано: __${banstats.todayipban}__\n:green_circle: Сегодня разблокировано: __${banstats.todayipunban}__\n:x: **Всего заблокировано: ${banstats.totalipban}**`
         await interactionreply(interaction, replycontent, isephemeral);
+        console.log(`/total used ${publicreplylog}`)
     } else if(interaction.commandName === 'bancheck') {
         await interaction.deferReply({ flags: isephemeral ? [MessageFlags.Ephemeral] : [] });
-        await fbancheck(interaction, isephemeral, publicreplylog);
+        await fbancheck(interaction, publicreplylog);
         incrementStat('getbancheck');
+    } else if(interaction.commandName === 'dig') {
+        await interaction.deferReply({ flags: isephemeral ? [MessageFlags.Ephemeral] : [] });
+        await fdig(interaction, publicreplylog);
+        incrementStat('digcmd');
     }
 });
 
@@ -219,8 +335,9 @@ client.once(Events.ClientReady, async(readyClient) => {
     //Bot Presence List
     const presencelist = [
         { name: `🩵 /about • Запретян!`, type: ActivityType.Streaming },
+        { name: `🌐 /dig • Узнать IP сайта!`, type: ActivityType.Streaming },
         { name: `❌ Забанено ${banstats.rawtotalban} доменов!`, type: ActivityType.Streaming },
-        { name: `📈 /total • ${usagestats.getbancheck + usagestats.totalcmd}+ запросов!`, type: ActivityType.Streaming },
+        { name: `📈 /total • ${usagestats.getbancheck + usagestats.totalcmd + usagestats.digcmd}+ запросов!`, type: ActivityType.Streaming },
         { name: `❌ Забанено ${banstats.rawtotalipban} адресов!`, type: ActivityType.Streaming },
         { name: `🔍 /bancheck • ${corever}`, type: ActivityType.Streaming }
     ];
