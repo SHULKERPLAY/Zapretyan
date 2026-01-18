@@ -1,4 +1,4 @@
-const corever = 'v1.4.40';
+const corever = 'v1.4.41';
 const forbiddenChars = /['",:;<>?!@#$%^&*(){}|\[\]\/\\]/;
 //Statistics
 const { loadStats, incrementStat, statsAutoSave } = require('./botstats.js');
@@ -6,14 +6,13 @@ loadStats();
 //Autosave stats every (mins)
 statsAutoSave(60);
 
-const fs = require('fs');
-const fspromises = require('fs').promises;
-const path = require('path');
+const fs = require('node:fs');
+const fspromises = require('node:fs/promises');
+const path = require('node:path');
 const { exec } = require("child_process");
 // Require the necessary discord.js classes
 const { Client, Routes, Events, GatewayIntentBits, ActivityType, setPrestnce, SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { createInterface } = require('node:readline');
-const fetch = require('node-fetch');
 const { token } = require('./config.json');
 
 //data for /total cmd

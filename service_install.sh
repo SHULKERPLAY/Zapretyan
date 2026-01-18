@@ -75,10 +75,9 @@ if [ -e $installpath/sender/package.json ]; then
     cd $installpath/sender
     npm i
 else
-    echo package.json not found. Installing latest: discord.js, node-fetch
+    echo package.json not found. Installing latest: discord.js
     cd $installpath/sender
     npm i discord.js
-    npm i node-fetch
 fi
 
 echo recheck files

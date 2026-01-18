@@ -1,3 +1,4 @@
+#!/bin/bash
 #MAYBE IM STUPID BUT THIS WORKS CORRECTLY ONLY IF U CALL INDEX.JS FROM SAME DIRECTORY AS INDEX
 #e.g node index.js
 #Otherwise bot will return null error trying to resolve an empty answer

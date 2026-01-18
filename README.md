@@ -174,7 +174,7 @@
 `npm i`
 
 Если нет, то:
-`npm i discord.js && npm i node-fetch`
+`npm i discord.js`
 
 И можно переходить далее
 > Репозиторий работал в связке с Discord.js `14.16.3` или `14.25.1`

@@ -1,6 +1,6 @@
 {
-  "name": "Zapretyan",
-  "version": "1.4.2",
+  "name": "zapretyan",
+  "version": "1.4.3",
   "description": "Запретян - это набор скриптов работающий на Debian/Ubuntu, который собирает данные о блокировках интернет ресурсов в РФ и каждый день подробно (или кратко в цифрах) сообщает о изменениях в реестре блокировок за день в Discord с помощью Discord бота!",
   "keywords": [
     "discord-bot",
@@ -21,7 +21,6 @@
   "type": "commonjs",
   "main": "index.js",
   "dependencies": {
-    "discord.js": "14.25.1",
-    "node-fetch": "3.3.2"
+    "discord.js": "14.25.1"
   }
 }
