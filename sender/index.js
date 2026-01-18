@@ -1,4 +1,4 @@
-const corever = 'v1.4.48';
+const corever = 'v1.4.49';
 const forbiddenChars = /['",:;<>?!@#$%^&*(){}|\[\]\/\\]/;
 //Statistics
 const { loadStats, incrementStat, statsAutoSave } = require('./botstats.js');
@@ -181,13 +181,13 @@ function createEmbed(title, data, footer, color) {
 }
 //interaction functions
 //common reply
-async function interactionreply(interaction, replycontent, isephemeral, embedcontent) {
+async function interactionreply(interaction, replycontent, isephemeral, embedcontent, hideembeds) {
     try {
         //djs v14.15+ now using flags instead of 'ephemeral: true'
         const replyflag = [];
         const replydata = (replycontent || '').length > 1900 ? replycontent.substring(0, 1900) + "...\n```\nОтображаемый контент превышает 1900 символов!" : replycontent;
         if (isephemeral) replyflag.push(MessageFlags.Ephemeral);
-        //if (hideembeds) replyflag.push(MessageFlags.SuppressEmbeds);
+        if (hideembeds) replyflag.push(MessageFlags.SuppressEmbeds);
         await interaction.reply({
             content: replydata || '',
             embeds: embedcontent || [],
@@ -300,12 +300,12 @@ client.on('interactionCreate', async (interaction) => {
         incrementStat('pingcmd');
     } else if (interaction.commandName === 'about') {
         incrementStat('aboutcmd');
-        const replycontent = `:blue_heart: Помогаю с поисками в реестре блокировок! Начните поиск с помощью команды **/bancheck**. Ищите IP адрес и записи сайта при помощи **/dig**! Пригласите на свой сервер с помощью **/invite**. Статистику по блокировкам сегодня можно посмотреть с помощью **/total**.\n:speech_left: Бот Запретян работает на базе https://github.com/SHULKERPLAY/Zapretyan (Оригинальная: \`Zapretyan#2802\`).\n:dizzy: *Версия ядра: ${corever}*\n:grey_question: Есть вопросы? [Посмотрите FAQ на Github](https://github.com/SHULKERPLAY/Zapretyan/wiki/%D0%A7%D0%B0%D1%81%D1%82%D0%BE-%D0%B7%D0%B0%D0%B4%D0%B0%D0%B2%D0%B0%D0%B5%D0%BC%D1%8B%D0%B5-%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B) или [на нашем сайте!](https://lunarcreators.ru/zapretyan/app/) \n:gift_heart: [Сервер поддержки](https://discord.gg/e2HcXrQ) - <@459657842895486977> \n\n-# [Условия использования](https://lunarcreators.ru/zapretyan/app/tos/) и [Политика Конфиденциальности](https://lunarcreators.ru/zapretyan/app/privacy/)`
-        await interactionreply(interaction, replycontent, true);
+        const replycontent = `:blue_heart: Помогаю с поисками в реестре блокировок! Начните поиск с помощью команды **/bancheck**.\nИщите IP адрес и записи сайта при помощи **/dig**!\nПригласите на свой сервер с помощью **/invite**.\nСтатистику по блокировкам сегодня можно посмотреть с помощью **/total**.\n:speech_left: Бот Запретян работает на базе https://github.com/SHULKERPLAY/Zapretyan (Оригинальная: \`Zapretyan#2802\`).\n:dizzy: *Версия ядра: ${corever}*\n:grey_question: Есть вопросы? [Посмотрите FAQ на Github](https://github.com/SHULKERPLAY/Zapretyan/wiki/%D0%A7%D0%B0%D1%81%D1%82%D0%BE-%D0%B7%D0%B0%D0%B4%D0%B0%D0%B2%D0%B0%D0%B5%D0%BC%D1%8B%D0%B5-%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B) или [на нашем сайте!](https://lunarcreators.ru/zapretyan/app/) \n:gift_heart: [Сервер поддержки](https://discord.gg/e2HcXrQ) - <@459657842895486977> \n\n-# [Условия использования](https://lunarcreators.ru/zapretyan/app/tos/) и [Политика Конфиденциальности](https://lunarcreators.ru/zapretyan/app/privacy/)`
+        await interactionreply(interaction, replycontent, true, null, true);
     } else if (interaction.commandName === 'invite') {
         incrementStat('invitecmd');
         const replycontent = `:gift_heart: [Нажмите для добавления бота на сервер](https://discord.com/oauth2/authorize?client_id=907372459144147035&permissions=277025410048&integration_type=0&scope=bot) или [Добавьте через магазин приложений на сервер или как личное приложение](https://discord.com/discovery/applications/907372459144147035)! \n*Установка в свои приложения даёт доступ к функциям поиска запретян в любом чате сервера и ЛС.* \n\n:bangbang: *Это **НЕ рассылки**! На вашем сервере будут доступны слеш-команды для поиска по реестру РКН. Для реализации ежедневных рассылок для вашего сервера свяжитесь с разработчиком.*`
-        await interactionreply(interaction, replycontent, true);
+        await interactionreply(interaction, replycontent, true, null, true);
     } else if (interaction.commandName === 'total') {
         incrementStat('totalcmd');
         const replycontent = `**__ДОМЕНЫ__**\n:fire: Сегодня заблокировано: __${banstats.todayban}__\n:large_blue_diamond: Сегодня разблокировано: __${banstats.todayunban}__\n:no_entry_sign: **Всего заблокировано: ${banstats.totalban}**\n\n**__IP АДРЕСА__**\n:orange_circle: Сегодня заблокировано: __${banstats.todayipban}__\n:green_circle: Сегодня разблокировано: __${banstats.todayipunban}__\n:x: **Всего заблокировано: ${banstats.totalipban}**`
