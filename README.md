@@ -64,7 +64,7 @@
 
 Качаем и распаковываем с заменой последний релиз
 
-    wget -t 5 -O Zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.4.2/zapretyan.tar.gz' && tar -xf Zapretyan.tar.gz && rm Zapretyan.tar.gz
+    wget -t 5 -O Zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/latest/download/zapretyan.tar.gz' && tar -xf Zapretyan.tar.gz && rm Zapretyan.tar.gz
 
 Возвращаем старый токен бота
 
@@ -83,7 +83,7 @@
   
 Скачайте архив из последнего релиза
 
-    wget -O zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/download/1.4.2/zapretyan.tar.gz'
+    wget -O zapretyan.tar.gz 'https://github.com/SHULKERPLAY/Zapretyan/releases/latest/download/zapretyan.tar.gz'
 
   
 Или скачайте архив репозитория
