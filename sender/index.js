@@ -1,4 +1,4 @@
-const corever = 'v1.4.49';
+const corever = 'v1.4.50';
 const forbiddenChars = /['",:;<>?!@#$%^&*(){}|\[\]\/\\]/;
 //Statistics
 const { loadStats, incrementStat, statsAutoSave } = require('./botstats.js');
@@ -124,13 +124,13 @@ const dnsdig = new SlashCommandBuilder()
             .setDescription('🌐 Какой тип доменной записи вы ищете?')
             .setRequired(true)
             .addChoices(
-                { name: '🌐 IPv4 адрес (A)', value: 'A' },
-                { name: '🌐 IPv6 адрес (AAAA)', value: 'AAAA' },
+                { name: '🌐 IPv4 адрес домена (A)', value: 'A' },
+                { name: '🌐 IPv6 адрес домена (AAAA)', value: 'AAAA' },
                 { name: '🌐 Синоним домена (CNAME)', value: 'CNAME' },
-                { name: '🌐 Почтовые записи (MX)', value: 'MX' },
-                { name: '🌐 Текстовые записи (TXT)', value: 'TXT' },
+                { name: '🌐 Почтовые записи домена (MX)', value: 'MX' },
+                { name: '🌐 Текстовые записи домена (TXT)', value: 'TXT' },
                 { name: '🌐 Сервера имён домена (NS)', value: 'NS' },
-                { name: '🌐 PTR Запись связи IP адреса с доменом (IPv4 адрес в домен)', value: 'PTR' },
+                { name: '🌐 PTR Связь IP адреса с доменом (IPv4 адрес в домен)', value: 'PTR' },
             ))
     .addStringOption(option =>
         option.setName('string')
