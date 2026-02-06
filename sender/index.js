@@ -1,4 +1,4 @@
-const corever = 'v1.4.50';
+const corever = 'v1.4.52';
 const forbiddenChars = /['",:;<>?!@#$%^&*(){}|\[\]\/\\]/;
 //Statistics
 const { loadStats, incrementStat, statsAutoSave } = require('./botstats.js');
@@ -7,14 +7,46 @@ loadStats();
 statsAutoSave(60);
 
 const fs = require('node:fs');
-const fspromises = require('node:fs/promises');
 const dns = require('node:dns/promises');
 const path = require('node:path');
-const { exec } = require("child_process");
 // Require the necessary discord.js classes
 const { Client, Routes, Events, GatewayIntentBits, ActivityType, EmbedBuilder, SlashCommandBuilder, MessageFlags } = require('discord.js');
 const { createInterface } = require('node:readline');
-const { token } = require('./config.json');
+const { token, dbdir } = require('./config.json');
+
+// For bancheck network daemon
+const { spawn } = require('child_process');
+const net = require('net');
+const SOCK_PATH = '/tmp/domfind.sock';
+
+function startBancheckDaemon() {
+    // Start Bancheck Daemon
+    console.log("Starting Domfind daemon...")
+    const goDaemon = spawn(path.join(__dirname, './domfind'), ['-indexdir', dbdir]);
+
+    goDaemon.stdout.on('data', (data) => {
+        console.log(`[Domfind] ${data}`);
+    });
+    // Close daemon if Node is closing
+    process.on('exit', () => {
+        goDaemon.kill();
+    });
+
+    // Autorestart
+    goDaemon.on('close', (code) => {
+            console.warn(`Domfind daemon exited with code: ${code}. Restarting...`);
+
+            // Wait to aware cycling
+            setTimeout(startBancheckDaemon, 2000);
+        });
+
+    // Handle critical err
+    goDaemon.on('error', (err) => {
+        console.error('Failed to start Go daemon:', err);
+    });
+}
+startBancheckDaemon();
+
 
 //data for /total cmd
 const banstatsFilePath = path.join(__dirname, 'var/stats');
@@ -55,42 +87,46 @@ loadusecount()
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds], rest: { timeout: 60000 } });
 
+// Rules helper
+// Interaction can be used in 0 - Guild Channels, 1 - DM with bot, 2 - Group or Private user DM's
+// Interaction work with 0 - Guild Install, 1 - User Install
+const setAvailable = (builder) => builder.setIntegrationTypes(0, 1).setContexts(0, 1, 2);
+
+// publicreply helper
+//decide if reply be ephemeral (publicreply: false / true)
+const addPublicReply = () => (option) => {
+    option.setName('публично')
+    .setDescription('❓ Будет ли результат виден всем в этом чате?')
+    .setRequired(false);
+    return option;
+};
+
 const ping = new SlashCommandBuilder()
     .setName('ping')
     .setDescription('🏓 Проверка скорости ответа приложения')
-    .setIntegrationTypes(0, 1)
-    .setContexts(0, 1)
+    setAvailable(ping);
   
 const about = new SlashCommandBuilder()
     .setName('about')
     .setDescription('📙 Подробная информация о приложении')
-    .setIntegrationTypes(0, 1)
-    .setContexts(0, 1)
+    setAvailable(about);
   
-const invite = {
-  name: 'invite',
-  description: '🔗 Установить запретян на сервер или как личное приложение!'
-};
+const invite = new SlashCommandBuilder()
+    .setName('invite')
+    .setDescription('🔗 Установить запретян на сервер или как личное приложение!')
+    setAvailable(invite);
 
 const total = new SlashCommandBuilder()
     .setName('total')
     .setDescription('📈 Посмотреть количество заблокированных доменов и IP адресов')
-    .setIntegrationTypes(0, 1)
-    .setContexts(0, 1, 2)
+    setAvailable(total)
     //decide if reply be ephemeral (publicreply: false / true)
-    .addBooleanOption(option =>
-        option.setName('публично')
-        .setDescription('❓ Будет ли результат виден всем в этом чате?')
-        .setRequired(false))
-    //end of publicreply
+    .addBooleanOption(addPublicReply())
 
 const bancheck = new SlashCommandBuilder()
     .setName('bancheck')
     .setDescription('🔍 Проверка наличия домена или IPv4 адреса в реестре Роскомнадзора')
-// Interaction work with 0 - Guild Install, 1 - User Install
-    .setIntegrationTypes(0, 1)
-// Interaction can be used in 0 - Guild Channels, 1 - DM with bot, 2 - Group or Private user DM's
-    .setContexts(0, 1, 2)
+    setAvailable(bancheck)
     .addStringOption(option =>
         option.setName('type')
             .setDescription('🔍 Блокировку чего нужно проверить? Домена/Сайта или IPv4 адреса?')
@@ -106,19 +142,12 @@ const bancheck = new SlashCommandBuilder()
             .setMaxLength(255)
             .setRequired(true))
     //decide if reply be ephemeral (publicreply: false / true)
-    .addBooleanOption(option =>
-        option.setName('публично')
-        .setDescription('❓ Будет ли результат виден всем в этом чате?')
-        .setRequired(false));
-    //end of publicreply
+    .addBooleanOption(addPublicReply())
     
 const dnsdig = new SlashCommandBuilder()
     .setName('dig')
     .setDescription('🌐 Проверить IP адрес домена и другие данные (A, AAAA, CNAME, TXT, MX, NS или PTR записи)')
-// Interaction work with 0 - Guild Install, 1 - User Install
-    .setIntegrationTypes(0, 1)
-// Interaction can be used in 0 - Guild Channels, 1 - DM with bot, 2 - Group or Private user DM's
-    .setContexts(0, 1, 2)
+    setAvailable(dnsdig)
     .addStringOption(option =>
         option.setName('type')
             .setDescription('🌐 Какой тип доменной записи вы ищете?')
@@ -139,11 +168,7 @@ const dnsdig = new SlashCommandBuilder()
             .setMaxLength(255)
             .setRequired(true))
     //decide if reply be ephemeral (publicreply: false / true)
-    .addBooleanOption(option =>
-        option.setName('публично')
-        .setDescription('❓ Будет ли результат виден всем в этом чате?')
-        .setRequired(false));
-    //end of publicreply
+    .addBooleanOption(addPublicReply())
 
 const commands = [ping, bancheck, about, invite, total, dnsdig]; // Add your commands with commas to add them to the bot!
 
@@ -179,6 +204,7 @@ function createEmbed(title, data, footer, color) {
         .setFooter({ text: footer || 'С любовью, @Zapretyan#2802' });
     return newembed;
 }
+
 //interaction functions
 //common reply
 async function interactionreply(interaction, replycontent, isephemeral, embedcontent, hideembeds) {
@@ -209,7 +235,50 @@ async function interactioneditreply(interaction, replycontent, embedcontent) {
         console.error('Ошибка именения ответа:', error.message)
     }
 }
+
 //bancheck
+function bancheckDaemon(command, mode) {
+    return new Promise((resolve, reject) => {
+        const client = net.createConnection(SOCK_PATH);
+        let responseBuffer = '';
+
+        // Timeout if request stuck
+        client.setTimeout(15000);
+
+        // Send command when connected
+        client.on('connect', () => {
+            // Daemon awaits newline to start completing request
+            client.write(`${mode};` + command + '\n');
+        });
+
+        // Get data (Partial)
+        client.on('data', (chunk) => {
+            responseBuffer += chunk.toString();
+        });
+
+        // Daemon closed connection at success
+        client.on('end', () => {
+            resolve(responseBuffer);
+        });
+
+        // Error resolving
+        // On timeout
+        client.on('timeout', () => {
+            console.error("Bancheck Timeout: Server took too long");
+            client.destroy(); // Force close connection
+            reject(new Error("Connection timeout"));
+        });
+        // On err
+        client.on('error', (err) => {
+            if (err.code === 'ENOENT') {
+                reject(new Error(`Daemon not running`));
+            } else {
+                reject(err);
+            }
+        });
+    });
+}
+
 async function fbancheck(interaction, publicreplylog) {
     const search = interaction.options.getString('string');
     //test for bad characters
@@ -218,9 +287,8 @@ async function fbancheck(interaction, publicreplylog) {
         return await interactioneditreply(interaction, replycontent);
     }
     let mode;
-    const reqid = Math.random();
     if (interaction.options.getString('type') === 'domain') {
-        mode = ''
+        mode = 'domain'
         incrementStat('domainchecked');
         console.log(`Bancheck: '${search}' ${publicreplylog}`)
     } else {
@@ -228,19 +296,19 @@ async function fbancheck(interaction, publicreplylog) {
         incrementStat('ipchecked');
         console.log(`Bancheck: ip:'${search}' ${publicreplylog}`)
     }
-    await new Promise(r => exec(`/bin/bash ./domfind.sh '${search}' '${reqid}' '${mode}'`, (r)));
-    //Read callback and reply
     let domaindata;
-    const filepath = path.join(__dirname, `/temp/${reqid}`);
     try {
-        domaindata = await fspromises.readFile(filepath, 'utf8');
-    } catch (error) {
-        console.error('Failed to read file:', error);
+        // Send request to bancheck network socket
+        domaindata = await bancheckDaemon(search, mode);
+    } catch (err) {
+        console.error('Bancheck Daemon error:', err.message);
+        domaindata = `:red_circle: Внутренняя ошибка. ${err.message}`
     }
     //Operator || counts undefined, null, 0, false and empty line as bad. While operator ?? counts as bad only undefined and null
     const replycontent = domaindata || `:warning: *Ошибка сервера. Обратитесь к администратору бота. Код: undefined_reply*`
     interactioneditreply(interaction, replycontent);
 }
+
 //dnsdig
 async function fdig(interaction, publicreplylog) {
     const type = interaction.options.getString('type');
