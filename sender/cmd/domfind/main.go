@@ -30,22 +30,33 @@ const sockPath = "/tmp/domfind.sock"
 
 var index, comindex, ipindex string
 
+type AppArgs struct {
+	Shdir       string
+	Loglevel    string
+	MaxmindID   string
+	MaxmindPass string
+}
+
 func main() {
+	args := &AppArgs{}
+	
 	//Early Init
 	fmt.Println("Domain Matcher", ver)
 	defer slog.Info("App closed")
 	//Parse Flags
-	shdir := parseFlags()
+	parseFlags(&AppArgs{})
 	//Required flags
-	flagRequired(shdir)
-	slog.Info("Index directory", "shdir", shdir)
+	flagRequired(args.Shdir)
+	flagRequired(args.MaxmindID)
+	flagRequired(args.MaxmindPass)
+	slog.Info("Index directory", "shdir", args.Shdir)
 	//Check neccesary files
-	checkFile(shdir, "new.txt", true)
-	checkFile(shdir, "community.txt", true)
-	checkFile(shdir, "newip.txt", true)
-	index = filepath.Join(shdir, "new.txt")
-	comindex = filepath.Join(shdir, "community.txt")
-	ipindex = filepath.Join(shdir, "newip.txt")
+	checkFile(args.Shdir, "new.txt", true)
+	checkFile(args.Shdir, "community.txt", true)
+	checkFile(args.Shdir, "newip.txt", true)
+	index = filepath.Join(args.Shdir, "new.txt")
+	comindex = filepath.Join(args.Shdir, "community.txt")
+	ipindex = filepath.Join(args.Shdir, "newip.txt")
 
 	slog.Debug("Bounds are:", slog.Int("minlength", minlength), slog.Int("maxlength", maxlength))
 
@@ -97,22 +108,25 @@ func main() {
 /* Also we can use os.args
 import "os"
 args := os.Args
-if s := &shdir; len(args) > 1 {
+if s := &args.Shdir; len(args) > 1 {
 	*s = args[1]
 	fmt.Println("arg1 is:", *s)
 } */
 
-func parseFlags() string {
-	slog.Info("Parsing flags...")
+func parseFlags(args *AppArgs) {
+	slog.Debug("Parsing flags...")
+
 	// Define flags (name, default, description)
 	defer slog.Debug("parseFlags() ended")
-	shdir := flag.String("indexdir", "", "Path to folder with new.txt, newip.txt, community.txt")
-	loglevel := flag.String("log", "", "Set log level: 'info', 'warn', 'error' or 'debug'")
+	flag.StringVar(&args.Shdir, "indexdir", "", "Path to folder with new.txt, newip.txt, community.txt")
+	flag.StringVar(&args.Loglevel, "log", "", "Set log level: 'info', 'warn', 'error' or 'debug'")
+	flag.StringVar(&args.MaxmindID, "maxmindid", "", "Set MaxMind ID to access db download")
+	flag.StringVar(&args.MaxmindPass, "maxmindpass", "", "Set MaxMind password to access db download")
 	flag.Parse()
+
 	// Prepare Logger
-	setupLogger(loglevel)
-	slog.Debug("Got flags.", "shdir", *shdir, "loglevel", *loglevel)
-	return *shdir
+	setupLogger(&args.Loglevel)
+	slog.Debug("Got flags.", "flags", &args)
 }
 
 func flagRequired(test string) {
