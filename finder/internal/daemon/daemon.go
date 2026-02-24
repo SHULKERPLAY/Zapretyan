@@ -20,6 +20,7 @@ type GlobalParams struct {
 	Minlength int
 	Maxlength int
 	SockPath string
+	AppPath string
 	Index string
 	Comindex string
 	Ipindex string
@@ -41,6 +42,7 @@ func init() {
 	// Init params
 	Params = &GlobalParams{}
 	Args = &AppArgs{}
+	
 
 	//Parse Flags and setup Logger
 	parseFlags()
@@ -50,6 +52,9 @@ func init() {
 	flagRequired(Args.MaxmindID)
 	flagRequired(Args.MaxmindPass)
 
+	// Get Application Directory
+	Params.AppPath = getAppPath()
+
 	//Check neccesary files
 	checkFile(Args.Shdir, "new.txt", true)
 	checkFile(Args.Shdir, "community.txt", true)
@@ -57,6 +62,7 @@ func init() {
 	Params.Index = filepath.Join(Args.Shdir, "new.txt")
 	Params.Comindex = filepath.Join(Args.Shdir, "community.txt")
 	Params.Ipindex = filepath.Join(Args.Shdir, "newip.txt")
+	
 
 	// Define DNS resolver
 	Params.Resolver = &net.Resolver{
@@ -155,4 +161,16 @@ func checkFile(dir string, filename string, critical bool) {
 	// Close when success
 	defer file.Close()
 	slog.Info("OK", "Available", fullPath)
+}
+
+// Returns directory where app is installed
+func getAppPath() string {
+	// Get executable path
+	exePath, err := os.Executable()
+	if err != nil {
+		return "" // Fallback to workdir on fail
+	}
+
+	// Get only directory
+	return filepath.Dir(exePath)
 }

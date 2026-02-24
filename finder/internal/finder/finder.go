@@ -1,17 +1,18 @@
 package finder
 
 import (
+	"bufio"
 	"fmt"
 	"log/slog"
-	"os"
-	"bufio"
 	"net"
+	"os"
 	"regexp"
 	"strings"
 	"unicode/utf8"
 
 	//Internal
 	"domfind/internal/daemon"
+	"domfind/internal/geomanager"
 	"domfind/internal/resolve"
 )
 
@@ -31,29 +32,81 @@ func ProcessIP(ip string) string {
 	parsedIP := net.ParseIP(ip)
 	if parsedIP == nil || strings.Contains(ip, "/") {
 		slog.Warn("BAD IP ADRESS!", "ip", ip)
-		return fmt.Sprintf(":red_circle: **Недопустимый IPv4 адрес!** (%s)", ip)
-	}
-	//Check for IPv4 structure
-	if parsedIP.To4() == nil {
-		slog.Warn("NOT AN IPv4!", "ip", ip)
-		return ":red_circle: Поддерживаются только IPv4 адреса."
-	}
-	slog.Debug("Checks passed", "ip", ip)
-	//Strict search
-	slog.Debug("Searching", "ip", ip, "in", daemon.Params.Ipindex)
-	res, err := grepFile(daemon.Params.Ipindex, ip, true)
-	if err != nil {
-		slog.Error("Error while searching", "ip", ip)
-		return fmt.Sprintf(":red_circle: Ошибка при поиске адреса: %v", err)
+		return fmt.Sprintf(":red_circle: **Недопустимый IP адрес!** (%s)", ip)
 	}
 
-	// If find something, then it banned
-	if res.Count < 1 {
-		slog.Info("Not found matching lines!")
-		return fmt.Sprintf(":green_heart: __%s__ **не найден** в реестре блокировок РКН!", ip)
+	// Init reply builder
+	var output strings.Builder
+
+	// Switch to skip phase 1
+	var phase1 = true
+
+	//Check for IPv4 structure
+	if parsedIP.To4() == nil {
+		slog.Warn("NOT AN IPv4! Skipping phase 1.", "ip", ip)
+		output.WriteString(":red_circle: Для поиска по реестру РКН поддерживаются только IPv4 адреса.")
+		phase1 = false
 	}
-	slog.Info("Found matching IP!")
-	return fmt.Sprintf(":large_orange_diamond: __%s__ **был найден** в реестре блокировок РКН!", ip)
+	slog.Debug("Checks passed", "ip", ip)
+
+	/*/////////
+		PHASE 1 - Main banlist (Only if IPv4)
+	*//////////
+
+	if phase1 {
+		//Strict search
+		slog.Debug("Searching", "ip", ip, "in", daemon.Params.Ipindex)
+		res, err := grepFile(daemon.Params.Ipindex, ip, true)
+		if err != nil {
+			slog.Error("Error while searching", "ip", ip)
+			output.WriteString(fmt.Sprintf(":red_circle: Ошибка при поиске адреса в реестре РКН: %v", err))
+		}
+
+		// If find something, then it banned
+		if res.Count < 1 {
+			slog.Info("Not found matching lines!")
+			output.WriteString(fmt.Sprintf(":green_heart: __%s__ **не найден** в реестре блокировок РКН!", ip))
+		}
+		slog.Info("Found matching IP!")
+		return fmt.Sprintf(":large_orange_diamond: __%s__ **был найден** в реестре блокировок РКН!", ip)
+	}
+
+	/*/////////
+		PHASE 2 - If no matches in phase 1: Compare with maxmind database
+	*//////////
+
+	// Switch to skip phase 2
+	var phase2 = true
+
+	if daemon.Params.Nommdb { phase2 = false }
+
+	if phase2 {
+		slog.Debug("Requesting IP ASN", "ip", ip, "in", geomanager.ASNDB)
+
+		// Get Org that owns IP address
+		isp := geomanager.GetKnownASNOrg(geomanager.GeoService.GetIPASN(ip))
+		slog.Info("Get ISP in Phase 2", "isp", isp)
+
+		// Decide what to add to user output
+		ispwarn, ispinfo := ispWarnings(isp)
+
+		if ispwarn {
+			slog.Info("Warn user about potentially blocked service")
+			if output.Len() > 0 { output.WriteString("\n") }
+			output.WriteString(fmt.Sprintf("⚠️ IP Адрес `%s` пренадлежит **%s**! Он может быть заблокирован или ограничен в РФ.", ip, isp))
+			output.WriteString("\n")
+			output.WriteString("-# Источник: MaxMind")
+		} else if ispinfo {
+			slog.Info("Inform user about ISP")
+			if output.Len() > 0 { output.WriteString("\n") }
+			output.WriteString(fmt.Sprintf("ℹ️ IP Адрес `%s` пренадлежит **%s**.", ip, isp))
+			output.WriteString("\n")
+			output.WriteString("-# Источник: MaxMind")
+		}
+	}
+
+	// Return completed output
+	return output.String()
 }
 
 // For mode domain
@@ -133,6 +186,7 @@ func ProcessDomain(domain string) string {
 	var phase3 = true
 
 	// Resolve and validate IP
+	// If Bad ip: Function return output immidiately. If it valid IPv6 then it will skip to Phase 4 (ASN Check)
 	ip := resolve.ResolveOne(domain)
 	if ip == "" {
 		slog.Warn("Failed to resolve domain in phase 3!", "ip", ip)
@@ -182,7 +236,27 @@ func ProcessDomain(domain string) string {
 	if daemon.Params.Nommdb { phase4 = false }
 
 	if phase4 {
-		//tbd
+		slog.Debug("Requesting domain IP ASN", "ip", ip, "in", geomanager.ASNDB)
+		// Get Org that owns IP address
+		isp := geomanager.GetKnownASNOrg(geomanager.GeoService.GetIPASN(ip))
+		slog.Info("Get ISP in Phase 4", "isp", isp)
+
+		// Decide what to add to user output
+		ispwarn, ispinfo := ispWarnings(isp)
+
+		if ispwarn {
+			slog.Info("Warn user about potentially blocked service")
+			if output.Len() > 0 { output.WriteString("\n") }
+			output.WriteString(fmt.Sprintf("⚠️ IP Адрес домена `%s` пренадлежит **%s**! Он может быть заблокирован или ограничен в РФ.", ip, isp))
+			output.WriteString("\n")
+			output.WriteString("-# Источник: MaxMind")
+		} else if ispinfo {
+			slog.Info("Inform user about ISP")
+			if output.Len() > 0 { output.WriteString("\n") }
+			output.WriteString(fmt.Sprintf("ℹ️ IP Адрес домена `%s` пренадлежит **%s**.", ip, isp))
+			output.WriteString("\n")
+			output.WriteString("-# Источник: MaxMind")
+		}
 	}
 
 	// Return completed output
@@ -267,3 +341,47 @@ func formatDomainOutput(domain string, res SearchResult, headerShort string) str
 	slog.Debug("Style returns", "headerShort", headerShort, "matchText", matchText, "and", res.Count-1)
 	return fmt.Sprintf("%s %s и ещё **%d доменов**! Измените запрос для получения более точного или объёмного результата.", headerShort, matchText, res.Count-1)
 }
+
+// If ISP name from map matching it will return one true and one false.
+// First bool value return true if service may be unavailable.
+// Second bool value return true if it probably available but we want to inform user about ISP. 
+func ispWarnings(isp string) (bool, bool) {
+	defer slog.Debug("ispWarnings() ended.")
+	slog.Debug("Got ISP to decide output warning.", "isp", isp)
+	// To inform about that service may be unavailable
+	var ispwarn = false
+	// To inform about owner
+	var ispinfo = false
+
+	// Switch to decide warn user or not
+	switch isp {
+	case "Cloudflare Inc.": 
+		ispwarn = true
+	case "Amazon Inc.": 
+		ispwarn = true
+	case "Twitter Inc.": 
+		ispwarn = true
+	case "Meta Platforms Inc.": 
+		ispwarn = true
+	case "Telegram Messenger": 
+		ispwarn = true
+	case "Google LLC": 
+		ispwarn = true
+	case "Akamai Technologies": 
+		ispinfo = true
+	case "Hetzner Online GmbH": 
+		ispinfo = true
+	case "Apple Inc.": 
+		ispinfo = true
+	case "The Constant Company LLC (VULTR)": 
+		ispinfo = true
+	case "DigitalOcean LLC": 
+		ispinfo = true
+	case "Microsoft Corporation": 
+		ispinfo = true
+	}
+
+	return ispwarn, ispinfo
+}
+
+		

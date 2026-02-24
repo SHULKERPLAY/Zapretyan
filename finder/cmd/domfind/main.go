@@ -15,12 +15,11 @@ import (
 	"time"
 
 	//Internal
-	"domfind/internal/finder"
 	"domfind/internal/daemon"
+	"domfind/internal/finder"
 )
 
 func main() {
-
 	// Default params
 	daemon.Params.Ver = "1.1.0"
 	daemon.Params.Minlength = 5
