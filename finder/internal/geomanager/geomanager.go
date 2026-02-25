@@ -127,11 +127,11 @@ type ASNRing struct {
 // FillASNMap fills customISPNames map with single records and ranges for one ASN org.
 // Usage: FillASNMap(customISPNames, "Big Corp", singles ([]uint{ 1, 2, 3, }), ranges ([]ASNRing{ {10, 20}, {100, 200}, })
 func FillASNMap(m map[uint]string, name string, singles []uint, ranges []ASNRing) {
-	// Добавляем одиночные номера
+	// Add single numbers
 	for _, asn := range singles {
 		m[asn] = name
 	}
-	// Добавляем диапазоны
+	// Add ranges of numbers
 	for _, r := range ranges {
 		for i := r.Min; i <= r.Max; i++ {
 			m[i] = name
@@ -287,7 +287,7 @@ type ResultData struct {
 	ASN      uint // ISP ASN. e.g. for Google Cloud it will be "15169"
 }
 
-// GetIPInfo collecting data from mmdb by query string 
+// GetIPInfo collecting data from mmdb by query string
 func (s *GeoServices) GetIPInfo(inputIP string) *ResultData {
 	defer slog.Debug("GetIPInfo() ended")
 

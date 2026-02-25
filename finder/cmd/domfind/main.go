@@ -17,6 +17,7 @@ import (
 	//Internal
 	"domfind/internal/daemon"
 	"domfind/internal/finder"
+	"domfind/internal/resolve"
 )
 
 func main() {
@@ -147,6 +148,17 @@ func domfindProcess(mode string, query string) string {
 	case "domain":
 		slog.Debug("Sending", "mode", mode, "query", query, "to", "processDomain()")
 		return finder.ProcessDomain(query)
+	case "geodomain":
+		if daemon.Params.Nommdb { return ":no_entry_sign: Сервисы GeoLite недоступны в данный момент." }
+		slog.Info("Trying to resolve GeoDomain", "q", query)
+		res := resolve.ResolveOne(query)
+		if res == "" { return fmt.Sprintf(":x: Не удалось зарезолвить адрес по запросу `%s`!", query)}
+		slog.Debug("Sending", "mode", mode, "query", query, "to", "ProcessGeoLite()")
+		return finder.ProcessGeoLite(res)
+	case "geoip":
+		if daemon.Params.Nommdb { return ":no_entry_sign: Сервисы GeoLite недоступны в данный момент." }
+		slog.Debug("Sending", "mode", mode, "query", query, "to", "ProcessGeoLite()")
+		return finder.ProcessGeoLite(query)
 	}
 	slog.Error("GOT WRONG", "mode", mode)
 	return ":red_circle: Internal err: Wrong mode type"

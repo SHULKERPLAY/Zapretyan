@@ -384,4 +384,22 @@ func ispWarnings(isp string) (bool, bool) {
 	return ispwarn, ispinfo
 }
 
-		
+// For mode Geo
+func ProcessGeoLite(ip string) string {
+	defer slog.Debug("ProcessGeoLite() ended", "ip", ip)
+
+	slog.Debug("Validating syntax", "ip", ip)
+	//Validate IP
+	parsedIP := net.ParseIP(ip)
+	if parsedIP == nil || strings.Contains(ip, "/") {
+		slog.Warn("BAD IP ADRESS!", "ip", ip)
+		return fmt.Sprintf(":red_circle: **Недопустимый IP адрес!** (%s)", ip)
+	}
+
+	// Search in db
+	slog.Info("Searching in GeoDB", "ip", ip)
+	geo := geomanager.GeoService.GetIPInfo(ip)
+
+	slog.Debug("Got Data:", "geo.IP", geo.IP, "geo.Country", geo.Country, "geo.City", geo.City, "geo.Provider", geo.Provider, "geo.ASN", geo.ASN)
+	return fmt.Sprintf(":heart_on_fire: Нашла следующие записи:\n---\nIP: `%s`\nСтрана: **%s**\nГород: **%s**\nПровайдер: __%s (AS%d)__\n---\n-# Источник: MaxMind", geo.IP, geo.Country, geo.City, geo.Provider, geo.ASN)
+}
