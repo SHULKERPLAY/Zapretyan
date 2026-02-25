@@ -64,13 +64,6 @@ var customISPNames = map[uint]string{
 	63179:  "Twitter Inc.",
 	32934:  "Meta Platforms Inc.",
 	63293:  "Meta Platforms Inc.",
-	23454:  "Akamai Technologies",
-	20189:  "Akamai Technologies",
-	32787:  "Akamai Technologies",
-	20940:  "Akamai Technologies",
-	200005: "Akamai Technologies",
-	63949:  "Akamai Technologies",
-	48337:  "Akamai Technologies",
 	24940:  "Hetzner Online GmbH",
 	213230: "Hetzner Online GmbH",
 	212317: "Hetzner Online GmbH",
@@ -83,6 +76,7 @@ var customISPNames = map[uint]string{
 	62567:  "DigitalOcean LLC",
 	393406: "DigitalOcean LLC",
 	394362: "DigitalOcean LLC",
+	32590:  "Valve Corporation",
 	13238:  "Yandex LLC",
 	47764:  "Mail.Ru Group",
 	60476:  "Mail.Ru Group",
@@ -116,6 +110,17 @@ func complexISPRanges() {
 		{400572, 400582},
 	}
 	FillASNMap(customISPNames, "Microsoft Corporation", msSingle, msRange)
+	// Akamai
+	akaSingle := []uint{
+		12222, 16625, 16702, 17204, 17334, 18680, 18717, 200005, 20189, 20940, 21342,
+		21357, 21399, 22207, 22452, 23454, 23455, 23903, 24319, 26008, 30675, 31107,
+		31377, 31984, 32787, 33047, 33905, 34164, 34850, 35204, 35993, 35994, 36029,
+		36183, 393234, 393560, 39836, 43639, 48337, 63949, 
+	}
+	akaRange := []ASNRing{
+		{31108, 31110},
+	}
+	FillASNMap(customISPNames, "Akamai Technologies", akaSingle, akaRange)
 }
 
 // ASNRing gets Min to Max range for FillASNMap()

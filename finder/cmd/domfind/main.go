@@ -153,7 +153,7 @@ func domfindProcess(mode string, query string) string {
 		slog.Info("Trying to resolve GeoDomain", "q", query)
 		res := resolve.ResolveOne(query)
 		if res == "" { return fmt.Sprintf(":x: Не удалось зарезолвить адрес по запросу `%s`!", query)}
-		slog.Debug("Sending", "mode", mode, "query", query, "to", "ProcessGeoLite()")
+		slog.Debug("Sending", "mode", mode, "query", query, "ip", res, "to", "ProcessGeoLite()")
 		return finder.ProcessGeoLite(res)
 	case "geoip":
 		if daemon.Params.Nommdb { return ":no_entry_sign: Сервисы GeoLite недоступны в данный момент." }

@@ -135,3 +135,4 @@ sender/var/
 sender/node_modules/
 shell/old/
 *.mmdb
+finder/bin

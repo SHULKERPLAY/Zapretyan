@@ -58,7 +58,7 @@ func ProcessIP(ip string) string {
 		slog.Debug("Searching", "ip", ip, "in", daemon.Params.Ipindex)
 		res, err := grepFile(daemon.Params.Ipindex, ip, true)
 		if err != nil {
-			slog.Error("Error while searching", "ip", ip)
+			slog.Error("Error while searching", "ip", ip, "err", err)
 			output.WriteString(fmt.Sprintf(":red_circle: Ошибка при поиске адреса в реестре РКН: %v", err))
 		}
 
@@ -66,9 +66,10 @@ func ProcessIP(ip string) string {
 		if res.Count < 1 {
 			slog.Info("Not found matching lines!")
 			output.WriteString(fmt.Sprintf(":green_heart: __%s__ **не найден** в реестре блокировок РКН!", ip))
+		} else {
+			slog.Info("Found matching IP!")
+			return fmt.Sprintf(":large_orange_diamond: __%s__ **был найден** в реестре блокировок РКН!", ip)
 		}
-		slog.Info("Found matching IP!")
-		return fmt.Sprintf(":large_orange_diamond: __%s__ **был найден** в реестре блокировок РКН!", ip)
 	}
 
 	/*/////////
@@ -173,6 +174,9 @@ func ProcessDomain(domain string) string {
 		if output.Len() > 0 { output.WriteString("\n") }
 		// Proceed to reply builder based on Struct info and append result to 'output'
 		output.WriteString(formatDomainOutput(domain, comRes, ":light_blue_heart: Нашла в **комьюнити-листе**"))
+
+		// Skip phase 3-4 if found something
+		return output.String()
 	} else {
 		slog.Info("Not found matching community patterns!")
 	}
@@ -379,6 +383,8 @@ func ispWarnings(isp string) (bool, bool) {
 		ispinfo = true
 	case "Microsoft Corporation": 
 		ispinfo = true
+	case "Valve Corporation":
+		ispinfo = true
 	}
 
 	return ispwarn, ispinfo
@@ -401,5 +407,5 @@ func ProcessGeoLite(ip string) string {
 	geo := geomanager.GeoService.GetIPInfo(ip)
 
 	slog.Debug("Got Data:", "geo.IP", geo.IP, "geo.Country", geo.Country, "geo.City", geo.City, "geo.Provider", geo.Provider, "geo.ASN", geo.ASN)
-	return fmt.Sprintf(":heart_on_fire: Нашла следующие записи:\n---\nIP: `%s`\nСтрана: **%s**\nГород: **%s**\nПровайдер: __%s (AS%d)__\n---\n-# Источник: MaxMind", geo.IP, geo.Country, geo.City, geo.Provider, geo.ASN)
+	return fmt.Sprintf(":heart_on_fire: Нашла следующие записи:\n---\n🌐 IP: `%s`\n🏳️ Страна: **%s**\n🏠 Город: **%s**\n🛜 Провайдер: __%s (AS%d)__\n---\n-# Источник: MaxMind", geo.IP, geo.Country, geo.City, geo.Provider, geo.ASN)
 }
