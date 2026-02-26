@@ -95,13 +95,13 @@ func ProcessIP(ip string) string {
 			slog.Info("Warn user about potentially blocked service")
 			if output.Len() > 0 { output.WriteString("\n") }
 			output.WriteString(fmt.Sprintf("⚠️ IP Адрес `%s` пренадлежит **%s**! Он может быть заблокирован или ограничен в РФ.", ip, isp))
-			output.WriteString("\n")
+			output.WriteString("\n\n")
 			output.WriteString("-# Источник: MaxMind")
 		} else if ispinfo {
 			slog.Info("Inform user about ISP")
 			if output.Len() > 0 { output.WriteString("\n") }
 			output.WriteString(fmt.Sprintf("ℹ️ IP Адрес `%s` пренадлежит **%s**.", ip, isp))
-			output.WriteString("\n")
+			output.WriteString("\n\n")
 			output.WriteString("-# Источник: MaxMind")
 		}
 	}
@@ -252,13 +252,13 @@ func ProcessDomain(domain string) string {
 			slog.Info("Warn user about potentially blocked service")
 			if output.Len() > 0 { output.WriteString("\n") }
 			output.WriteString(fmt.Sprintf("⚠️ IP Адрес домена `%s` пренадлежит **%s**! Он может быть заблокирован или ограничен в РФ.", ip, isp))
-			output.WriteString("\n")
+			output.WriteString("\n\n")
 			output.WriteString("-# Источник: MaxMind")
 		} else if ispinfo {
 			slog.Info("Inform user about ISP")
 			if output.Len() > 0 { output.WriteString("\n") }
 			output.WriteString(fmt.Sprintf("ℹ️ IP Адрес домена `%s` пренадлежит **%s**.", ip, isp))
-			output.WriteString("\n")
+			output.WriteString("\n\n")
 			output.WriteString("-# Источник: MaxMind")
 		}
 	}

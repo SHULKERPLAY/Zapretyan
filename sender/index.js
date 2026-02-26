@@ -1,5 +1,5 @@
-const corever = 'v1.4.52';
-const forbiddenChars = /['",:;<>?!@#$%^&*(){}|\[\]\/\\]/;
+const corever = 'v1.4.100.13';
+const forbiddenChars = /['",;<>?!@#$%^&*(){}|\[\]\/\\]/;
 //Statistics
 const { loadStats, incrementStat, statsAutoSave } = require('./botstats.js');
 loadStats();
@@ -11,18 +11,20 @@ const dns = require('node:dns/promises');
 const path = require('node:path');
 // Require the necessary discord.js classes
 const { Client, Routes, Events, GatewayIntentBits, ActivityType, EmbedBuilder, SlashCommandBuilder, MessageFlags } = require('discord.js');
-const { createInterface } = require('node:readline');
-const { token, dbdir } = require('./config.json');
+const { token, dbdir, maxmindid, maxmindpass } = require('./config.json');
 
 // For bancheck network daemon
 const { spawn } = require('child_process');
 const net = require('net');
 const SOCK_PATH = '/tmp/domfind.sock';
 
+// For GeoIP interaction cooldown feature
+const { checkRateLimit } = require('./cooldown.js')
+
 function startBancheckDaemon() {
     // Start Bancheck Daemon
     console.log("Starting Domfind daemon...")
-    const goDaemon = spawn(path.join(__dirname, './domfind'), ['-indexdir', dbdir]);
+    const goDaemon = spawn(path.join(__dirname, './domfind'), ['-indexdir', dbdir, "-maxmindid", maxmindid, "-maxmindpass", maxmindpass]);
 
     goDaemon.stdout.on('data', (data) => {
         console.log(`[Domfind] ${data}`);
@@ -46,7 +48,6 @@ function startBancheckDaemon() {
     });
 }
 startBancheckDaemon();
-
 
 //data for /total cmd
 const banstatsFilePath = path.join(__dirname, 'var/stats');
@@ -129,7 +130,7 @@ const bancheck = new SlashCommandBuilder()
     setAvailable(bancheck)
     .addStringOption(option =>
         option.setName('type')
-            .setDescription('🔍 Блокировку чего нужно проверить? Домена/Сайта или IPv4 адреса?')
+            .setDescription('🔍 Блокировку чего нужно проверить? Домена/Сайта или IP адреса?')
             .setRequired(true)
             .addChoices(
                 { name: 'Домен (Например: instagram.com)', value: 'domain' },
@@ -143,7 +144,28 @@ const bancheck = new SlashCommandBuilder()
             .setRequired(true))
     //decide if reply be ephemeral (publicreply: false / true)
     .addBooleanOption(addPublicReply())
-    
+
+const who = new SlashCommandBuilder()
+    .setName('who')
+    .setDescription('🔍 Узнать приблизительное расположение и провайдера по IP или Домену')
+    setAvailable(who)
+    .addStringOption(option =>
+        option.setName('type')
+            .setDescription('🔍 Что ищем? Домен/Сайт или IP адрес?')
+            .setRequired(true)
+            .addChoices(
+                { name: 'Домен (Например: instagram.com)', value: 'domain' },
+                { name: 'IP Адрес (Например: 159.22.102.2)', value: 'ip' },
+            ))
+    .addStringOption(option =>
+        option.setName('string')
+            .setDescription('🔍 Имя домена маленькими буквами без https:// или корректный IP адрес (Например: 1.1.1.1)')
+            .setMinLength(5)
+            .setMaxLength(255)
+            .setRequired(true))
+    //decide if reply be ephemeral (publicreply: false / true)
+    .addBooleanOption(addPublicReply())
+
 const dnsdig = new SlashCommandBuilder()
     .setName('dig')
     .setDescription('🌐 Проверить IP адрес домена и другие данные (A, AAAA, CNAME, TXT, MX, NS или PTR записи)')
@@ -170,9 +192,7 @@ const dnsdig = new SlashCommandBuilder()
     //decide if reply be ephemeral (publicreply: false / true)
     .addBooleanOption(addPublicReply())
 
-const commands = [ping, bancheck, about, invite, total, dnsdig]; // Add your commands with commas to add them to the bot!
-
-const rl = createInterface({ input: process.stdin, output: process.stdout });
+const commands = [ping, bancheck, about, invite, total, dnsdig, who]; // Place to add SlashCommandBuilder objects
 
 //functions
 //async delay
@@ -287,15 +307,31 @@ async function fbancheck(interaction, publicreplylog) {
         return await interactioneditreply(interaction, replycontent);
     }
     let mode;
-    if (interaction.options.getString('type') === 'domain') {
-        mode = 'domain'
-        incrementStat('domainchecked');
-        console.log(`Bancheck: '${search}' ${publicreplylog}`)
-    } else {
-        mode = 'ip'
-        incrementStat('ipchecked');
-        console.log(`Bancheck: ip:'${search}' ${publicreplylog}`)
+    if (interaction.commandName === 'bancheck') {
+        if (interaction.options.getString('type') === 'domain') {
+            mode = 'domain'
+            incrementStat('domainchecked');
+            console.log(`Bancheck: '${search}' ${publicreplylog}`)
+        } else {
+            mode = 'ip'
+            incrementStat('ipchecked');
+            console.log(`Bancheck: ip:'${search}' ${publicreplylog}`)
+        }
+    } else if (interaction.commandName === 'who') {
+        const execute = await checkRateLimit(interaction, 10);
+        // If function returned false (User Ratelimited): Stop executing
+        if (!execute) return;
+        if (interaction.options.getString('type') === 'domain') {
+            mode = 'geodomain'
+            incrementStat('geodomain');
+            console.log(`GeoLite: '${search}' ${publicreplylog}`)
+        } else {
+            mode = 'geoip'
+            incrementStat('geoip');
+            console.log(`GeoLite: ip:'${search}' ${publicreplylog}`)
+        }
     }
+
     let domaindata;
     try {
         // Send request to bancheck network socket
@@ -387,6 +423,10 @@ client.on('interactionCreate', async (interaction) => {
         await interaction.deferReply({ flags: isephemeral ? [MessageFlags.Ephemeral] : [] });
         await fdig(interaction, publicreplylog);
         incrementStat('digcmd');
+    } else if(interaction.commandName === 'who') {
+        await interaction.deferReply({ flags: isephemeral ? [MessageFlags.Ephemeral] : [] });
+        await fbancheck(interaction, publicreplylog);
+        incrementStat('whocmd');
     }
 });
 
@@ -433,9 +473,6 @@ client.once(Events.ClientReady, async(readyClient) => {
 
 //prelogin
 (async() => {
-    //auth
-    const question = (q) => new Promise((resolve) => rl.question(q, resolve));
-
     // Log in to Discord with your client's token
     await client.login(token).catch((err) => {
       throw err
