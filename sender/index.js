@@ -1,53 +1,21 @@
-const corever = 'v1.4.100.13';
+// Since 1.4.101.x core can be started only by shard manager
+
+const corever = 'v1.4.101.17';
 const forbiddenChars = /['",;<>?!@#$%^&*(){}|\[\]\/\\]/;
-//Statistics
-const { loadStats, incrementStat, statsAutoSave } = require('./botstats.js');
-loadStats();
-//Autosave stats every (mins)
-statsAutoSave(60);
 
 const fs = require('node:fs');
 const dns = require('node:dns/promises');
 const path = require('node:path');
 // Require the necessary discord.js classes
-const { Client, Routes, Events, GatewayIntentBits, ActivityType, EmbedBuilder, SlashCommandBuilder, MessageFlags } = require('discord.js');
-const { token, dbdir, maxmindid, maxmindpass } = require('./config.json');
+const { Client, Events, GatewayIntentBits, ActivityType, EmbedBuilder, Options, MessageFlags } = require('discord.js');
+const { token } = require('./config.json');
 
 // For bancheck network daemon
-const { spawn } = require('child_process');
 const net = require('net');
 const SOCK_PATH = '/tmp/domfind.sock';
 
 // For GeoIP interaction cooldown feature
 const { checkRateLimit } = require('./cooldown.js')
-
-function startBancheckDaemon() {
-    // Start Bancheck Daemon
-    console.log("Starting Domfind daemon...")
-    const goDaemon = spawn(path.join(__dirname, './domfind'), ['-indexdir', dbdir, "-maxmindid", maxmindid, "-maxmindpass", maxmindpass]);
-
-    goDaemon.stdout.on('data', (data) => {
-        console.log(`[Domfind] ${data}`);
-    });
-    // Close daemon if Node is closing
-    process.on('exit', () => {
-        goDaemon.kill();
-    });
-
-    // Autorestart
-    goDaemon.on('close', (code) => {
-            console.warn(`Domfind daemon exited with code: ${code}. Restarting...`);
-
-            // Wait to aware cycling
-            setTimeout(startBancheckDaemon, 2000);
-        });
-
-    // Handle critical err
-    goDaemon.on('error', (err) => {
-        console.error('Failed to start Go daemon:', err);
-    });
-}
-startBancheckDaemon();
 
 //data for /total cmd
 const banstatsFilePath = path.join(__dirname, 'var/stats');
@@ -69,8 +37,10 @@ loadbancount()
 
 //Usage data for presence status
 const usagestatsFilePath = path.join(__dirname, 'stats.json');
-let usagestats = {};
-function loadusecount() {
+let overralusage = 200;
+function loadusagestats() {
+    // Object not needed in all of index so we only count overral usage and throwing away loaded json
+    let usagestats = {};
     try {
         if (fs.existsSync(usagestatsFilePath)) {
             const usagedata = fs.readFileSync(usagestatsFilePath);
@@ -78,136 +48,52 @@ function loadusecount() {
         } else {
             usagestats = {};
         }
+
+        // Load overral use count
+        overralusage = usagestats.getbancheck + usagestats.totalcmd + usagestats.digcmd + usagestats.whocmd
     } catch (error) {
         console.error('Error while loading usagestats:', error);
         usagestats = {};
     }
 }
-loadusecount()
+loadusagestats()
 
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds], rest: { timeout: 60000 } });
-
-// Rules helper
-// Interaction can be used in 0 - Guild Channels, 1 - DM with bot, 2 - Group or Private user DM's
-// Interaction work with 0 - Guild Install, 1 - User Install
-const setAvailable = (builder) => builder.setIntegrationTypes(0, 1).setContexts(0, 1, 2);
-
-// publicreply helper
-//decide if reply be ephemeral (publicreply: false / true)
-const addPublicReply = () => (option) => {
-    option.setName('публично')
-    .setDescription('❓ Будет ли результат виден всем в этом чате?')
-    .setRequired(false);
-    return option;
-};
-
-const ping = new SlashCommandBuilder()
-    .setName('ping')
-    .setDescription('🏓 Проверка скорости ответа приложения')
-    setAvailable(ping);
-  
-const about = new SlashCommandBuilder()
-    .setName('about')
-    .setDescription('📙 Подробная информация о приложении')
-    setAvailable(about);
-  
-const invite = new SlashCommandBuilder()
-    .setName('invite')
-    .setDescription('🔗 Установить запретян на сервер или как личное приложение!')
-    setAvailable(invite);
-
-const total = new SlashCommandBuilder()
-    .setName('total')
-    .setDescription('📈 Посмотреть количество заблокированных доменов и IP адресов')
-    setAvailable(total)
-    //decide if reply be ephemeral (publicreply: false / true)
-    .addBooleanOption(addPublicReply())
-
-const bancheck = new SlashCommandBuilder()
-    .setName('bancheck')
-    .setDescription('🔍 Проверка наличия домена или IPv4 адреса в реестре Роскомнадзора')
-    setAvailable(bancheck)
-    .addStringOption(option =>
-        option.setName('type')
-            .setDescription('🔍 Блокировку чего нужно проверить? Домена/Сайта или IP адреса?')
-            .setRequired(true)
-            .addChoices(
-                { name: 'Домен (Например: instagram.com)', value: 'domain' },
-                { name: 'IP Адрес (Например: 159.22.102.2)', value: 'ip' },
-            ))
-    .addStringOption(option =>
-        option.setName('string')
-            .setDescription('🔍 Имя домена маленькими буквами без https:// или корректный IPv4 адрес (Например: 1.1.1.1)')
-            .setMinLength(5)
-            .setMaxLength(255)
-            .setRequired(true))
-    //decide if reply be ephemeral (publicreply: false / true)
-    .addBooleanOption(addPublicReply())
-
-const who = new SlashCommandBuilder()
-    .setName('who')
-    .setDescription('🔍 Узнать приблизительное расположение и провайдера по IP или Домену')
-    setAvailable(who)
-    .addStringOption(option =>
-        option.setName('type')
-            .setDescription('🔍 Что ищем? Домен/Сайт или IP адрес?')
-            .setRequired(true)
-            .addChoices(
-                { name: 'Домен (Например: instagram.com)', value: 'domain' },
-                { name: 'IP Адрес (Например: 159.22.102.2)', value: 'ip' },
-            ))
-    .addStringOption(option =>
-        option.setName('string')
-            .setDescription('🔍 Имя домена маленькими буквами без https:// или корректный IP адрес (Например: 1.1.1.1)')
-            .setMinLength(5)
-            .setMaxLength(255)
-            .setRequired(true))
-    //decide if reply be ephemeral (publicreply: false / true)
-    .addBooleanOption(addPublicReply())
-
-const dnsdig = new SlashCommandBuilder()
-    .setName('dig')
-    .setDescription('🌐 Проверить IP адрес домена и другие данные (A, AAAA, CNAME, TXT, MX, NS или PTR записи)')
-    setAvailable(dnsdig)
-    .addStringOption(option =>
-        option.setName('type')
-            .setDescription('🌐 Какой тип доменной записи вы ищете?')
-            .setRequired(true)
-            .addChoices(
-                { name: '🌐 IPv4 адрес домена (A)', value: 'A' },
-                { name: '🌐 IPv6 адрес домена (AAAA)', value: 'AAAA' },
-                { name: '🌐 Синоним домена (CNAME)', value: 'CNAME' },
-                { name: '🌐 Почтовые записи домена (MX)', value: 'MX' },
-                { name: '🌐 Текстовые записи домена (TXT)', value: 'TXT' },
-                { name: '🌐 Сервера имён домена (NS)', value: 'NS' },
-                { name: '🌐 PTR Связь IP адреса с доменом (IPv4 адрес в домен)', value: 'PTR' },
-            ))
-    .addStringOption(option =>
-        option.setName('string')
-            .setDescription('🌐 Доменное имя (Например: example.com) или корректный IPv4 адрес (Например: 1.1.1.1)')
-            .setMinLength(5)
-            .setMaxLength(255)
-            .setRequired(true))
-    //decide if reply be ephemeral (publicreply: false / true)
-    .addBooleanOption(addPublicReply())
-
-const commands = [ping, bancheck, about, invite, total, dnsdig, who]; // Place to add SlashCommandBuilder objects
+const client = new Client({
+    intents: [GatewayIntentBits.Guilds],
+    makeCache: Options.cacheWithLimits({
+        MessageManager: 0, // Not store messages
+        ThreadManager: 0,
+        UserManager: 0,    // Not store users
+        PresenceManager: 0,
+        GuildMemberManager: 0,
+    }),
+    rest: { timeout: 60000 } });
 
 //functions
+// Increase stat counter in manager
+function shardStat(key) {
+    // Is this process shard?
+    if (process.send) {
+        process.send({ type: 'incrementStat', stat: key });
+    }
+}
+
 //async delay
 function delay(ms) { //usage: await delay(10000)
-  return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
+
 //ephemeral message?
 async function checkephemeral(interaction) {
     const isPublic = interaction.options.getBoolean('публично') ?? false;
     if (isPublic) {
-        incrementStat(`use.publicreply`);
+        shardStat(`use.publicreply`);
         return { publicreplylog: 'public', isephemeral: false };
     }
     return { publicreplylog: '', isephemeral: true };
 }
+
 //Embed constructor
 function createEmbed(title, data, footer, color) {
     const authoricon = 'https://lunarcreators.ru/wp-content/uploads/2025/11/discordiconmini.webp'
@@ -243,6 +129,7 @@ async function interactionreply(interaction, replycontent, isephemeral, embedcon
         console.error('Ошибка отправки сообщения:', error.message)
     }
 }
+
 //common reply (deferred)
 async function interactioneditreply(interaction, replycontent, embedcontent) {
     const replydata = (replycontent || '').length > 1900 ? replycontent.substring(0, 1900) + "...\n```\nОтображаемый контент превышает 1900 символов!" : replycontent;
@@ -256,7 +143,7 @@ async function interactioneditreply(interaction, replycontent, embedcontent) {
     }
 }
 
-//bancheck
+// Send request to daemon socket
 function bancheckDaemon(command, mode) {
     return new Promise((resolve, reject) => {
         const client = net.createConnection(SOCK_PATH);
@@ -299,6 +186,7 @@ function bancheckDaemon(command, mode) {
     });
 }
 
+// Parse interaction and reply content from domfind daemon
 async function fbancheck(interaction, publicreplylog) {
     const search = interaction.options.getString('string');
     //test for bad characters
@@ -310,11 +198,11 @@ async function fbancheck(interaction, publicreplylog) {
     if (interaction.commandName === 'bancheck') {
         if (interaction.options.getString('type') === 'domain') {
             mode = 'domain'
-            incrementStat('domainchecked');
+            shardStat('domainchecked');
             console.log(`Bancheck: '${search}' ${publicreplylog}`)
         } else {
             mode = 'ip'
-            incrementStat('ipchecked');
+            shardStat('ipchecked');
             console.log(`Bancheck: ip:'${search}' ${publicreplylog}`)
         }
     } else if (interaction.commandName === 'who') {
@@ -323,11 +211,11 @@ async function fbancheck(interaction, publicreplylog) {
         if (!execute) return;
         if (interaction.options.getString('type') === 'domain') {
             mode = 'geodomain'
-            incrementStat('geodomain');
+            shardStat('geodomain');
             console.log(`GeoLite: '${search}' ${publicreplylog}`)
         } else {
             mode = 'geoip'
-            incrementStat('geoip');
+            shardStat('geoip');
             console.log(`GeoLite: ip:'${search}' ${publicreplylog}`)
         }
     }
@@ -355,7 +243,7 @@ async function fdig(interaction, publicreplylog) {
         return await interactioneditreply(interaction, replycontent);
     }
     console.log(`DNS Search: ${type} ${domain} ${publicreplylog}`)
-    incrementStat(`digcmd.${type}`);
+    shardStat(`digcmd.${type}`);
     const resolver = new dns.Resolver();
     resolver.setServers(['1.1.1.1', '8.8.8.8'])
     try {
@@ -401,32 +289,32 @@ client.on('interactionCreate', async (interaction) => {
     if (interaction.commandName === 'ping') {
         const replycontent = `:ping_pong: *Понг!* Задержка ${Date.now() - interaction.createdTimestamp} миллисекунд! Задержка API ${Math.round(client.ws.ping)} миллисекунд.`
         await interactionreply(interaction, replycontent, true);
-        incrementStat('pingcmd');
+        shardStat('pingcmd');
     } else if (interaction.commandName === 'about') {
-        incrementStat('aboutcmd');
-        const replycontent = `:blue_heart: Помогаю с поисками в реестре блокировок! Начните поиск с помощью команды **/bancheck**.\nИщите IP адрес и записи сайта при помощи **/dig**!\nПригласите на свой сервер с помощью **/invite**.\nСтатистику по блокировкам сегодня можно посмотреть с помощью **/total**.\n:speech_left: Бот Запретян работает на базе https://github.com/SHULKERPLAY/Zapretyan (Оригинальная: \`Zapretyan#2802\`).\n:dizzy: *Версия ядра: ${corever}*\n:grey_question: Есть вопросы? [Посмотрите FAQ на Github](https://github.com/SHULKERPLAY/Zapretyan/wiki/%D0%A7%D0%B0%D1%81%D1%82%D0%BE-%D0%B7%D0%B0%D0%B4%D0%B0%D0%B2%D0%B0%D0%B5%D0%BC%D1%8B%D0%B5-%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B) или [на нашем сайте!](https://lunarcreators.ru/zapretyan/app/) \n:gift_heart: [Сервер поддержки](https://discord.gg/e2HcXrQ) - <@459657842895486977> \n\n-# [Условия использования](https://lunarcreators.ru/zapretyan/app/tos/) и [Политика Конфиденциальности](https://lunarcreators.ru/zapretyan/app/privacy/)`
+        shardStat('aboutcmd');
+        const replycontent = `:blue_heart: Помогаю с поисками блокировок из нескольких источников! Начните поиск с помощью команды **/bancheck**.\nИщите IP адрес и записи сайта при помощи **/dig**!\nПригласите на свой сервер с помощью **/invite**.\nСтатистику по блокировкам сегодня можно посмотреть с помощью **/total**.\n\n🔮 **БОЛЬШОЕ ОБНОВЛЕНИЕ:**\n- Теперь Запретян отдаёт ещё больше информации при поиске IP адреса или полного имени сайта!\n- С новой командой \`/who\` вы можете узнать страну сайта или IP, а также его провайдера (10 раз в час)!\n\n:speech_left: Бот Запретян работает на базе https://github.com/SHULKERPLAY/Zapretyan (Оригинальная: \`Zapretyan#2802\`).\n:dizzy: *Версия ядра: ${corever}*\n:grey_question: Есть вопросы? [Посмотрите FAQ на Github](https://github.com/SHULKERPLAY/Zapretyan/wiki/%D0%A7%D0%B0%D1%81%D1%82%D0%BE-%D0%B7%D0%B0%D0%B4%D0%B0%D0%B2%D0%B0%D0%B5%D0%BC%D1%8B%D0%B5-%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B) или [на нашем сайте!](https://lunarcreators.ru/zapretyan/app/) \n:gift_heart: [Сервер поддержки](https://discord.gg/e2HcXrQ) - <@459657842895486977> \n\n-# [Условия использования](https://lunarcreators.ru/zapretyan/app/tos/) и [Политика Конфиденциальности](https://lunarcreators.ru/zapretyan/app/privacy/)`
         await interactionreply(interaction, replycontent, true, null, true);
     } else if (interaction.commandName === 'invite') {
-        incrementStat('invitecmd');
+        shardStat('invitecmd');
         const replycontent = `:gift_heart: [Нажмите для добавления бота на сервер](https://discord.com/oauth2/authorize?client_id=907372459144147035&permissions=277025410048&integration_type=0&scope=bot) или [Добавьте через магазин приложений на сервер или как личное приложение](https://discord.com/discovery/applications/907372459144147035)! \n*Установка в свои приложения даёт доступ к функциям поиска запретян в любом чате сервера и ЛС.* \n\n:bangbang: *Это **НЕ рассылки**! На вашем сервере будут доступны слеш-команды для поиска по реестру РКН. Для реализации ежедневных рассылок для вашего сервера свяжитесь с разработчиком.*`
         await interactionreply(interaction, replycontent, true, null, true);
     } else if (interaction.commandName === 'total') {
-        incrementStat('totalcmd');
+        shardStat('totalcmd');
         const replycontent = `**__ДОМЕНЫ__**\n:fire: Сегодня заблокировано: __${banstats.todayban}__\n:large_blue_diamond: Сегодня разблокировано: __${banstats.todayunban}__\n:no_entry_sign: **Всего заблокировано: ${banstats.totalban}**\n\n**__IP АДРЕСА__**\n:orange_circle: Сегодня заблокировано: __${banstats.todayipban}__\n:green_circle: Сегодня разблокировано: __${banstats.todayipunban}__\n:x: **Всего заблокировано: ${banstats.totalipban}**`
         await interactionreply(interaction, replycontent, isephemeral);
         console.log(`/total used ${publicreplylog}`)
     } else if(interaction.commandName === 'bancheck') {
         await interaction.deferReply({ flags: isephemeral ? [MessageFlags.Ephemeral] : [] });
         await fbancheck(interaction, publicreplylog);
-        incrementStat('getbancheck');
+        shardStat('getbancheck');
     } else if(interaction.commandName === 'dig') {
         await interaction.deferReply({ flags: isephemeral ? [MessageFlags.Ephemeral] : [] });
         await fdig(interaction, publicreplylog);
-        incrementStat('digcmd');
+        shardStat('digcmd');
     } else if(interaction.commandName === 'who') {
         await interaction.deferReply({ flags: isephemeral ? [MessageFlags.Ephemeral] : [] });
         await fbancheck(interaction, publicreplylog);
-        incrementStat('whocmd');
+        shardStat('whocmd');
     }
 });
 
@@ -436,19 +324,10 @@ client.once(Events.ClientReady, async(readyClient) => {
     await readyClient.application.fetch();
     //Installation Counter
     const installCount = readyClient.application.approximateUserInstallCount
-    //Login output
-    console.log(`Logged in as ${readyClient.user.tag}. Approx installs: ${installCount}`);
-    incrementStat('botlogin');
     
-    //Bot Presence List
-    const presencelist = [
-        { name: `🩵 /about • Запретян!`, type: ActivityType.Streaming },
-        { name: `🌐 /dig • Узнать IP сайта!`, type: ActivityType.Streaming },
-        { name: `❌ Забанено ${banstats.rawtotalban} доменов!`, type: ActivityType.Streaming },
-        { name: `📈 /total • ${usagestats.getbancheck + usagestats.totalcmd + usagestats.digcmd}+ запросов!`, type: ActivityType.Streaming },
-        { name: `❌ Забанено ${banstats.rawtotalipban} адресов!`, type: ActivityType.Streaming },
-        { name: `🔍 /bancheck • ${corever}`, type: ActivityType.Streaming }
-    ];
+    console.log(`Logged in as ${readyClient.user.tag}: Shard ${client.shard.ids[0]}. Approx installs: ${installCount}`);
+    //Login output
+    shardStat('shardlogin');
     
     //index init
     let currentIndex = 0;
@@ -456,6 +335,21 @@ client.once(Events.ClientReady, async(readyClient) => {
     function presenceupdate() {
         //check if client ready
         if (!client.user) return;
+
+        // Update presence only by first shard!
+        if (client.shard && client.shard.ids[0] !== 0) return;
+
+        //Bot Presence List
+        const presencelist = [
+            { name: `🔍 /bancheck • ${corever}`, type: ActivityType.Streaming },
+            { name: `🩵 /about • Большое обновление!`, type: ActivityType.Streaming },
+            { name: `🔮 /who • Чей сайт или IP адрес?`, type: ActivityType.Streaming },
+            { name: `📈 /total • ${overralusage}+ запросов!`, type: ActivityType.Streaming },
+            { name: `❌ Забанено ${banstats.rawtotalban} доменов!`, type: ActivityType.Streaming },
+            { name: `🌐 /dig • Узнать IP сайта!`, type: ActivityType.Streaming },
+            { name: `❌ Забанено ${banstats.rawtotalipban} адресов!`, type: ActivityType.Streaming }
+        ];
+
         //Set Presence
         client.user.setPresence({
             activities: [presencelist[currentIndex]],
@@ -471,13 +365,7 @@ client.once(Events.ClientReady, async(readyClient) => {
     setInterval(presenceupdate, 1800000);
 });
 
-//prelogin
-(async() => {
-    // Log in to Discord with your client's token
-    await client.login(token).catch((err) => {
-      throw err
-    });
-    
-    //app commands registration
-    await client.rest.put(Routes.applicationCommands(client.user.id), { body: commands });
-})();
+// Log in to Discord with your client's token
+client.login(token).catch((err) => {
+    throw err
+});

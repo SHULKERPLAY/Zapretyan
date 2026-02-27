@@ -23,7 +23,7 @@ setInterval(() => {
 }, TIMEFRAME);
 
 /* Function to check command cooldown
- * Requires { interaction } object from interaction and MAX_USES integer to limit requests pert hour
+ * Requires { interaction } object from interaction and MAX_USES integer to limit requests per hour
  * Returns true if limit not reached and command can be executed and false if limit reached */
 async function checkRateLimit(interaction, MAX_USES) {
     const userId = interaction.user.id;
