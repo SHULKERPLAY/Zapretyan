@@ -388,7 +388,10 @@ func (s *GeoServices) GetIPASN (inputIP string) uint {
 func GetKnownASNOrg(asn uint) string {
 	if friendlyName, ok := customISPNames[asn]; ok {
 		return friendlyName
-	} else { return "" }
+	}
+
+	// Return empty string if fail
+	return ""
 }
 
 // processISPName cleans provider raw AS name to be more presentable

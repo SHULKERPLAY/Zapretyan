@@ -113,9 +113,12 @@ func ProcessIP(ip string) string {
 // For mode domain
 func ProcessDomain(domain string) string {
 	defer slog.Debug("processDomain() ended", "domain", domain)
+	
 	slog.Debug("Validating syntax", "domain", domain)
+
 	// Validate Regexp
 	validName := regexp.MustCompile(`^[ёЁа-яА-Яa-zA-Z0-9.-]+$`)
+
 	if !validName.MatchString(domain) {
 		slog.Warn("BAD CHARACTERS AT", "domain", domain)
 		return fmt.Sprintf(":red_circle: Недопустимый символ в __**%s**__.", domain)
@@ -177,9 +180,9 @@ func ProcessDomain(domain string) string {
 
 		// Skip phase 3-4 if found something
 		return output.String()
-	} else {
-		slog.Info("Not found matching community patterns!")
-	}
+	} 
+
+	slog.Info("Not found matching community patterns!")
 	slog.Debug("Phase 2 output:", "part", output.String())
 
 	/*/////////
