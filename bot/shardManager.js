@@ -2,7 +2,7 @@ const { ShardingManager } = require('discord.js');
 const { spawn } = require('child_process');
 const path = require('node:path');
 const { token, dbdir, maxmindid, maxmindpass } = require('./config.json');
-const { deployInteractons } = require('./deploy.js');
+const { deployInteractions } = require('./deploy.js');
 
 //Statistics
 const { loadStats, incrementStat, statsAutoSave } = require('./botstats.js');
@@ -40,7 +40,7 @@ startBancheckDaemon();
 
 // Deploy interactions on start
 (async() => {
-    await deployInteractons()
+    await deployInteractions()
     incrementStat('botlogin');
 })();
 
@@ -63,7 +63,7 @@ manager.on('shardCreate', shard => {
     });
 });
 
-// Запуск всех шардов
+// Start all shards
 manager.spawn()
     .then(() => console.log('[Zapretyan Manager] All Shards Online!'))
     .catch(console.error);

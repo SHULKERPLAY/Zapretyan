@@ -3,7 +3,7 @@ const { Client, Events, Routes, GatewayIntentBits, SlashCommandBuilder } = requi
 const { token } = require('./config.json');
 
 // Deploys actual interactions once shard manager calls this function
-async function deployInteractons() {
+async function deployInteractions() {
     try {
         // Rules helper
         // Interaction can be used in 0 - Guild Channels, 1 - DM with bot, 2 - Group or Private user DM's
@@ -133,4 +133,4 @@ async function deployInteractons() {
     }
 }
 
-module.exports = { deployInteractons };
+module.exports = { deployInteractions };
