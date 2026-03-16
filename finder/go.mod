@@ -1,6 +1,6 @@
 module domfind
 
-go 1.25.6
+go 1.26.0
 
 require (
 	github.com/lmittmann/tint v1.1.3

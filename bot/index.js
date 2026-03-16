@@ -1,6 +1,6 @@
 // Since 1.4.101.x core can be started only by shard manager
 
-const corever = 'v1.4.101.17';
+const corever = 'v1.4.101.18';
 const forbiddenChars = /['",;<>?!@#$%^&*(){}|\[\]\/\\]/;
 
 const fs = require('node:fs');
@@ -83,6 +83,15 @@ function shardStat(key) {
 function delay(ms) { //usage: await delay(10000)
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+//Integer randomizer
+//effective range: getRandomInt(-999999999999999, 999999999999999));
+function getRandomInt(min, max) {
+    //null test
+    min = min ?? -999999999999999;
+    max = max ?? 999999999999999;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
 
 //ephemeral message?
 async function checkephemeral(interaction) {
@@ -342,7 +351,8 @@ client.once(Events.ClientReady, async(readyClient) => {
         //Bot Presence List
         const presencelist = [
             { name: `🔍 /bancheck • ${corever}`, type: ActivityType.Streaming },
-            { name: `🩵 /about • Большое обновление!`, type: ActivityType.Streaming },
+            { name: `🩵 /about • Запретян!`, type: ActivityType.Streaming },
+            { name: `🎲 Случайный IPv4 • ${getRandomInt(1, 255)}.${getRandomInt(1, 255)}.${getRandomInt(1, 255)}.${getRandomInt(1, 255)}`, type: ActivityType.Streaming },
             { name: `🔮 /who • Чей сайт или IP адрес?`, type: ActivityType.Streaming },
             { name: `📈 /total • ${overralusage}+ запросов!`, type: ActivityType.Streaming },
             { name: `❌ Забанено ${banstats.rawtotalban} доменов!`, type: ActivityType.Streaming },
