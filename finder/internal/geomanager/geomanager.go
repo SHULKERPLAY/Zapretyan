@@ -398,13 +398,15 @@ func (s *GeoServices) GetKnownASNOrg(rawip string) string {
 	if err != nil {
 		// If IP not found in ASN base
 		return ""
-	} else { // Return name from hardcoded list and raw if not match
-		if friendlyName, ok := customISPNames[asnRecord.AutonomousSystemNumber]; ok {
-			return friendlyName
-		} else {
-			return asnRecord.AutonomousSystemOrganization
-		}
 	}
+
+	// Return name from hardcoded list
+	if friendlyName, ok := customISPNames[asnRecord.AutonomousSystemNumber]; ok {
+		return friendlyName
+	}
+
+	// Return raw name if not match
+	return asnRecord.AutonomousSystemOrganization
 }
 
 // processISPName cleans provider raw AS name to be more presentable
