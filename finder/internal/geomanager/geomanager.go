@@ -384,14 +384,27 @@ func (s *GeoServices) GetIPASN (inputIP string) uint {
 	return result
 }
 
-// Compares ASN (uint) with map of known orgs. Returns empty string if no matches
-func GetKnownASNOrg(asn uint) string {
-	if friendlyName, ok := customISPNames[asn]; ok {
-		return friendlyName
+// Compares ASN of IP (string) with map of known orgs. Returns raw string if no matches
+func (s *GeoServices) GetKnownASNOrg(rawip string) string {
+	// Validate IP
+	ip := net.ParseIP(rawip)
+	if ip == nil {
+		slog.Warn("Wrong IP format!", "ip", rawip)
+		return ""
 	}
 
-	// Return empty string if fail
-	return ""
+	// Get ASN of IP
+	asnRecord, err := s.ASNDB.ASN(ip)
+	if err != nil {
+		// If IP not found in ASN base
+		return ""
+	} else { // Return name from hardcoded list and raw if not match
+		if friendlyName, ok := customISPNames[asnRecord.AutonomousSystemNumber]; ok {
+			return friendlyName
+		} else {
+			return asnRecord.AutonomousSystemOrganization
+		}
+	}
 }
 
 // processISPName cleans provider raw AS name to be more presentable

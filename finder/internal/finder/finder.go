@@ -32,7 +32,7 @@ func ProcessIP(ip string) string {
 	parsedIP := net.ParseIP(ip)
 	if parsedIP == nil || strings.Contains(ip, "/") {
 		slog.Warn("BAD IP ADRESS!", "ip", ip)
-		return fmt.Sprintf(":red_circle: **Недопустимый IP адрес!** (%s)", ip)
+		return fmt.Sprintf("🔴 **Недопустимый IP адрес!** (%s)", ip)
 	}
 
 	// Init reply builder
@@ -44,14 +44,14 @@ func ProcessIP(ip string) string {
 	//Check for IPv4 structure
 	if parsedIP.To4() == nil {
 		slog.Warn("NOT AN IPv4! Skipping phase 1.", "ip", ip)
-		output.WriteString(":red_circle: Для поиска по реестру РКН поддерживаются только IPv4 адреса.")
+		output.WriteString("🔴 Для поиска по реестру РКН поддерживаются только IPv4 адреса.")
 		phase1 = false
 	}
 	slog.Debug("Checks passed", "ip", ip)
 
 	/*/////////
-		PHASE 1 - Main banlist (Only if IPv4)
-	*//////////
+	PHASE 1 - Main banlist (Only if IPv4)
+	*/
 
 	if phase1 {
 		//Strict search
@@ -59,33 +59,35 @@ func ProcessIP(ip string) string {
 		res, err := grepFile(daemon.Params.Ipindex, ip, true)
 		if err != nil {
 			slog.Error("Error while searching", "ip", ip, "err", err)
-			output.WriteString(fmt.Sprintf(":red_circle: Ошибка при поиске адреса в реестре РКН: %v", err))
+			output.WriteString(fmt.Sprintf("🔴 Ошибка при поиске адреса в реестре РКН: %v", err))
 		}
 
 		// If find something, then it banned
 		if res.Count < 1 {
 			slog.Info("Not found matching lines!")
-			output.WriteString(fmt.Sprintf(":green_heart: __%s__ **не найден** в реестре блокировок РКН!", ip))
+			output.WriteString(fmt.Sprintf("💚 __%s__ **не найден** в реестре блокировок РКН!", ip))
 		} else {
 			slog.Info("Found matching IP!")
-			return fmt.Sprintf(":large_orange_diamond: __%s__ **был найден** в реестре блокировок РКН!", ip)
+			return fmt.Sprintf("🔶 __%s__ **был найден** в реестре блокировок РКН!", ip)
 		}
 	}
 
 	/*/////////
-		PHASE 2 - If no matches in phase 1: Compare with maxmind database
-	*//////////
+	PHASE 2 - If no matches in phase 1: Compare with maxmind database
+	*/
 
 	// Switch to skip phase 2
 	var phase2 = true
 
-	if daemon.Params.Nommdb { phase2 = false }
+	if daemon.Params.Nommdb {
+		phase2 = false
+	}
 
 	if phase2 {
 		slog.Debug("Requesting IP ASN", "ip", ip, "in", geomanager.ASNDB)
 
 		// Get Org that owns IP address
-		isp := geomanager.GetKnownASNOrg(geomanager.GeoService.GetIPASN(ip))
+		isp := geomanager.GeoService.GetKnownASNOrg(ip)
 		slog.Info("Get ISP in Phase 2", "isp", isp)
 
 		// Decide what to add to user output
@@ -93,13 +95,17 @@ func ProcessIP(ip string) string {
 
 		if ispwarn {
 			slog.Info("Warn user about potentially blocked service")
-			if output.Len() > 0 { output.WriteString("\n") }
+			if output.Len() > 0 {
+				output.WriteString("\n")
+			}
 			output.WriteString(fmt.Sprintf("⚠️ IP Адрес `%s` пренадлежит **%s**! Он может быть заблокирован или ограничен в РФ.", ip, isp))
 			output.WriteString("\n\n")
 			output.WriteString("-# Источник: MaxMind")
 		} else if ispinfo {
 			slog.Info("Inform user about ISP")
-			if output.Len() > 0 { output.WriteString("\n") }
+			if output.Len() > 0 {
+				output.WriteString("\n")
+			}
 			output.WriteString(fmt.Sprintf("ℹ️ IP Адрес `%s` пренадлежит **%s**.", ip, isp))
 			output.WriteString("\n\n")
 			output.WriteString("-# Источник: MaxMind")
@@ -113,7 +119,7 @@ func ProcessIP(ip string) string {
 // For mode domain
 func ProcessDomain(domain string) string {
 	defer slog.Debug("processDomain() ended", "domain", domain)
-	
+
 	slog.Debug("Validating syntax", "domain", domain)
 
 	// Validate Regexp
@@ -121,7 +127,7 @@ func ProcessDomain(domain string) string {
 
 	if !validName.MatchString(domain) {
 		slog.Warn("BAD CHARACTERS AT", "domain", domain)
-		return fmt.Sprintf(":red_circle: Недопустимый символ в __**%s**__.", domain)
+		return fmt.Sprintf("🔴 Недопустимый символ в __**%s**__.", domain)
 	}
 
 	// All to lowercase
@@ -133,17 +139,17 @@ func ProcessDomain(domain string) string {
 	length := utf8.RuneCountInString(domain)
 	if length < daemon.Params.Minlength {
 		slog.Warn("Search string is too short!")
-		return fmt.Sprintf(":red_circle: Минимальная длинна запроса - %d символов", daemon.Params.Minlength)
+		return fmt.Sprintf("🔴 Минимальная длинна запроса - %d символов", daemon.Params.Minlength)
 	}
 	if length > daemon.Params.Maxlength {
 		slog.Warn("Search string is too long!")
-		return fmt.Sprintf(":red_circle: Максимальная длинна запроса - %d символов", daemon.Params.Maxlength)
+		return fmt.Sprintf("🔴 Максимальная длинна запроса - %d символов", daemon.Params.Maxlength)
 	}
 	slog.Debug("Checks passed")
 
 	/*/////////
-		PHASE 1 - Main banlist
-	*//////////
+	PHASE 1 - Main banlist
+	*/
 
 	// Get struct from search
 	slog.Debug("Searching", "domain", domain, "in", daemon.Params.Index)
@@ -153,20 +159,20 @@ func ProcessDomain(domain string) string {
 	if err == nil {
 		if rknRes.Count < 1 {
 			slog.Info("Not found matching patterns!")
-			output.WriteString(fmt.Sprintf(":green_heart: __%s__ **не найден** в реестре блокировок РКН!", domain))
+			output.WriteString(fmt.Sprintf("💚 __%s__ **не найден** в реестре блокировок РКН!", domain))
 		} else { // Proceed to reply builder based on Struct info and put result to 'output'
 			slog.Info("Found matching:", "rknRes.Count", rknRes.Count)
-			output.WriteString(formatDomainOutput(domain, rknRes, ":orange_heart: Нашла в **реестре РКН**"))
+			output.WriteString(formatDomainOutput(domain, rknRes, "🧡 Нашла в **реестре РКН**"))
 		}
 	} else { // if error
 		slog.Error("Error while searching domain", "err", err)
-		output.WriteString(fmt.Sprintf(":red_circle: Ошибка при поиске домена: %v", err))
+		output.WriteString(fmt.Sprintf("🔴 Ошибка при поиске домена: %v", err))
 	}
 	slog.Debug("First Phase output:", "part", output.String())
 
 	/*/////////
-		PHASE 2 - Community banlist
-	*//////////
+	PHASE 2 - Community banlist
+	*/
 
 	// Community search
 	slog.Debug("Searching", "domain", domain, "in", daemon.Params.Comindex)
@@ -174,20 +180,22 @@ func ProcessDomain(domain string) string {
 	if err == nil && comRes.Count > 0 {
 		slog.Info("Found matching patterns (community):", "comRes.Count", comRes.Count)
 		// Add newline if result was written
-		if output.Len() > 0 { output.WriteString("\n") }
+		if output.Len() > 0 {
+			output.WriteString("\n")
+		}
 		// Proceed to reply builder based on Struct info and append result to 'output'
-		output.WriteString(formatDomainOutput(domain, comRes, ":light_blue_heart: Нашла в **комьюнити-листе**"))
+		output.WriteString(formatDomainOutput(domain, comRes, "🩵 Нашла в **комьюнити-листе**"))
 
 		// Skip phase 3-4 if found something
 		return output.String()
-	} 
+	}
 
 	slog.Info("Not found matching community patterns!")
 	slog.Debug("Phase 2 output:", "part", output.String())
 
 	/*/////////
-		PHASE 3 - If no matches: Resolve and check IP
-	*//////////
+	PHASE 3 - If no matches: Resolve and check IP
+	*/
 
 	// Switch to skip phase 3
 	var phase3 = true
@@ -225,27 +233,31 @@ func ProcessDomain(domain string) string {
 		} else {
 			slog.Info("Found matching IP (Phase 3):", "comRes.Count", comRes.Count)
 			// Add newline if result was written
-			if output.Len() > 0 { output.WriteString("\n") }
+			if output.Len() > 0 {
+				output.WriteString("\n")
+			}
 			// Proceed to reply builder based on Struct info and append result to 'output'
-			output.WriteString(fmt.Sprintf(":bangbang: IP Адрес домена **`%s --> %s`** был найден в **реестре РКН**!", domain, ip))
+			output.WriteString(fmt.Sprintf("‼️ IP Адрес домена **`%s --> %s`** был найден в **реестре РКН**!", domain, ip))
 			return output.String()
 		}
 		slog.Debug("Phase 3 output:", "part", output.String())
 	}
-	
+
 	/*/////////
-		PHASE 4 - If no matches in phase 3: Compare with maxmind database
-	*//////////
+	PHASE 4 - If no matches in phase 3: Compare with maxmind database
+	*/
 
 	// Switch to skip phase 4
 	var phase4 = true
 
-	if daemon.Params.Nommdb { phase4 = false }
+	if daemon.Params.Nommdb {
+		phase4 = false
+	}
 
 	if phase4 {
 		slog.Debug("Requesting domain IP ASN", "ip", ip, "in", geomanager.ASNDB)
 		// Get Org that owns IP address
-		isp := geomanager.GetKnownASNOrg(geomanager.GeoService.GetIPASN(ip))
+		isp := geomanager.GeoService.GetKnownASNOrg(ip)
 		slog.Info("Get ISP in Phase 4", "isp", isp)
 
 		// Decide what to add to user output
@@ -253,13 +265,17 @@ func ProcessDomain(domain string) string {
 
 		if ispwarn {
 			slog.Info("Warn user about potentially blocked service")
-			if output.Len() > 0 { output.WriteString("\n") }
+			if output.Len() > 0 {
+				output.WriteString("\n")
+			}
 			output.WriteString(fmt.Sprintf("⚠️ IP Адрес домена `%s` пренадлежит **%s**! Он может быть заблокирован или ограничен в РФ.", ip, isp))
 			output.WriteString("\n\n")
 			output.WriteString("-# Источник: MaxMind")
 		} else if ispinfo {
 			slog.Info("Inform user about ISP")
-			if output.Len() > 0 { output.WriteString("\n") }
+			if output.Len() > 0 {
+				output.WriteString("\n")
+			}
 			output.WriteString(fmt.Sprintf("ℹ️ IP Адрес домена `%s` пренадлежит **%s**.", ip, isp))
 			output.WriteString("\n\n")
 			output.WriteString("-# Источник: MaxMind")
@@ -351,7 +367,7 @@ func formatDomainOutput(domain string, res SearchResult, headerShort string) str
 
 // If ISP name from map matching it will return one true and one false.
 // First bool value return true if service may be unavailable.
-// Second bool value return true if it probably available but we want to inform user about ISP. 
+// Second bool value return true if it probably available but we want to inform user about ISP.
 func ispWarnings(isp string) (bool, bool) {
 	defer slog.Debug("ispWarnings() ended.")
 	slog.Debug("Got ISP to decide output warning.", "isp", isp)
@@ -362,29 +378,29 @@ func ispWarnings(isp string) (bool, bool) {
 
 	// Switch to decide warn user or not
 	switch isp {
-	case "Cloudflare Inc.": 
+	case "Cloudflare Inc.":
 		ispwarn = true
-	case "Amazon Inc.": 
+	case "Amazon Inc.":
 		ispwarn = true
-	case "Twitter Inc.": 
+	case "Twitter Inc.":
 		ispwarn = true
-	case "Meta Platforms Inc.": 
+	case "Meta Platforms Inc.":
 		ispwarn = true
-	case "Telegram Messenger": 
+	case "Telegram Messenger":
 		ispwarn = true
-	case "Google LLC": 
+	case "Google LLC":
 		ispwarn = true
-	case "Akamai Technologies": 
+	case "Akamai Technologies":
 		ispinfo = true
-	case "Hetzner Online GmbH": 
+	case "Hetzner Online GmbH":
 		ispinfo = true
-	case "Apple Inc.": 
+	case "Apple Inc.":
 		ispinfo = true
-	case "The Constant Company LLC (VULTR)": 
+	case "The Constant Company LLC (VULTR)":
 		ispinfo = true
-	case "DigitalOcean LLC": 
+	case "DigitalOcean LLC":
 		ispinfo = true
-	case "Microsoft Corporation": 
+	case "Microsoft Corporation":
 		ispinfo = true
 	case "Valve Corporation":
 		ispinfo = true
@@ -402,7 +418,7 @@ func ProcessGeoLite(ip string) string {
 	parsedIP := net.ParseIP(ip)
 	if parsedIP == nil || strings.Contains(ip, "/") {
 		slog.Warn("BAD IP ADRESS!", "ip", ip)
-		return fmt.Sprintf(":red_circle: **Недопустимый IP адрес!** (%s)", ip)
+		return fmt.Sprintf("🔴 **Недопустимый IP адрес!** (%s)", ip)
 	}
 
 	// Search in db
@@ -410,5 +426,5 @@ func ProcessGeoLite(ip string) string {
 	geo := geomanager.GeoService.GetIPInfo(ip)
 
 	slog.Debug("Got Data:", "geo.IP", geo.IP, "geo.Country", geo.Country, "geo.City", geo.City, "geo.Provider", geo.Provider, "geo.ASN", geo.ASN)
-	return fmt.Sprintf(":heart_on_fire: Нашла следующие записи:\n---\n🌐 IP: `%s`\n🏳️ Страна: **%s**\n🏠 Город: **%s**\n🛜 Провайдер: __%s (AS%d)__\n---\n-# Источник: MaxMind", geo.IP, geo.Country, geo.City, geo.Provider, geo.ASN)
+	return fmt.Sprintf("❤️‍🔥 Нашла следующие записи:\n---\n🌐 IP: `%s`\n🏳️ Страна: **%s**\n🏠 Город: **%s**\n🛜 Провайдер: __%s (AS%d)__\n---\n-# Источник: MaxMind", geo.IP, geo.Country, geo.City, geo.Provider, geo.ASN)
 }

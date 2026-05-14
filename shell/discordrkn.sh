@@ -168,12 +168,12 @@ if [ "$istotal" = true ]; then
     if [ "$botmode" = true ]; then
         echo -e '{"todayban":"'$bancount'","todayunban":"'$unbancount'","totalban":"'$totalbanned' `('$(printf "%+d\n" "$totaldiff")' за 24 часа)`","rawtotalban":"'$totalbanned'","todayipban":"'$banipcount'","todayipunban":"'$unbanipcount'","totalipban":"'$totalipbanned' `('$(printf "%+d\n" "$totalipdiff")' за 24 часа)`","rawtotalipban":"'$totalipbanned'"}' > $jsdir/var/stats
     fi
-    echo ":pushpin: Статистика за $qdate" > $fieldname
+    echo "📌 Статистика за $qdate" > $fieldname
     echo "$totalclr" > $embedcolor
     for totalsend in "${totalcid[@]}"; do
         echo "Sending Total to $totalsend"
         echo "$totalsend" > $channelid
-        echo -e '**__ДОМЕНЫ__**\n:fire: Сегодня заблокировано: __'$bancount'__!\n:large_blue_diamond: Сегодня разблокировано: __'$unbancount'__!\n:no_entry_sign: Всего заблокировано: __'$totalbanned'__ `('$(printf "%+d\n" "$totaldiff")' за прошедшие сутки)`!\n\n**__IP АДРЕСА__**\n:orange_circle: Сегодня заблокировано: __'$banipcount'__!\n:green_circle: Сегодня разблокировано: __'$unbanipcount'__!\n:x: Всего заблокировано: __'$totalipbanned'__ `('$(printf "%+d\n" "$totalipdiff")' за прошедшие сутки)`!' > $send
+        echo -e '**__ДОМЕНЫ__**\n🔥 Сегодня заблокировано: __'$bancount'__!\n🔷 Сегодня разблокировано: __'$unbancount'__!\n🚫 Всего заблокировано: __'$totalbanned'__ `('$(printf "%+d\n" "$totaldiff")' за прошедшие сутки)`!\n\n**__IP АДРЕСА__**\n🟠 Сегодня заблокировано: __'$banipcount'__!\n🟢 Сегодня разблокировано: __'$unbanipcount'__!\n❌ Всего заблокировано: __'$totalipbanned'__ `('$(printf "%+d\n" "$totalipdiff")' за прошедшие сутки)`!' > $send
         "$jsdir/exec.sh" sendembed && sleep 1
     done
 fi
@@ -186,7 +186,7 @@ if [ "$isban" = true ]; then
         echo "$bansend" > $channelid
         if [ "$banbytes" -le "2" ]; then
             if [ "$errorsend" = true ]; then
-                echo -e ":orange_book: *В сегодняшнем списке нет новых заблокированых ресурсов!* $errorping" > $send
+                echo -e "📙 *В сегодняшнем списке нет новых заблокированых ресурсов!* $errorping" > $send
                 "$jsdir/exec.sh" send && sleep 1
             else
                 sleep 2
@@ -194,7 +194,7 @@ if [ "$isban" = true ]; then
         else
             mv $shdir/msgbuff/ban/* ${batchsend:?}/
             "$jsdir/exec.sh" multiembed && sleep 1
-            echo -e '**:fire: Сегодня заблокировано доменов: __'$bancount'__!** \n:no_entry_sign: Всего заблокировано: __'$totalbanned'__' > $send
+            echo -e '**🔥 Сегодня заблокировано доменов: __'$bancount'__!** \n🚫 Всего заблокировано: __'$totalbanned'__' > $send
             "$jsdir/exec.sh" send && sleep 1
         fi
     done
@@ -210,7 +210,7 @@ if [ "$isunban" = true ]; then
         echo "$unbansend" > $channelid
         if [ "$unbanbytes" -le "2" ]; then
             if [ "$errorsend" = true ]; then
-                echo -e ":orange_book: *Сегодня никого не разблокировали!* $errorping" > $send
+                echo -e "📙 *Сегодня никого не разблокировали!* $errorping" > $send
                 "$jsdir/exec.sh" send && sleep 1
             else
                 sleep 2
@@ -219,7 +219,7 @@ if [ "$isunban" = true ]; then
             #Send Unban List
             mv $shdir/msgbuff/unban/* ${batchsend:?}/
             "$jsdir/exec.sh" multiembed && sleep 1
-            echo -e '**:large_blue_diamond: Сегодня разблокировано доменов: __'$unbancount'__! :large_blue_diamond:**' > $send
+            echo -e '**🔷 Сегодня разблокировано доменов: __'$unbancount'__! 🔷**' > $send
             "$jsdir/exec.sh" send && sleep 1
         fi
     done
@@ -241,10 +241,10 @@ if [ "$isbanip" = true ]; then
         if [ "$banipbytes" -le "2" ]; then
             if [ "$errorsend" = true ]; then
                 if [ "$sources" = "antifilter" ]; then
-                    echo -e ":orange_book: *В сегодняшнем списке нет новых заблокированых IP адресов!*  $errorping" > $send
+                    echo -e "📙 *В сегодняшнем списке нет новых заблокированых IP адресов!*  $errorping" > $send
                 fi
                 if [ "$sources" = "github" ]; then
-                    echo -e "*:orange_book: *В сегодняшнем списке нет новых заблокированых наборов адресов!*  $errorping" > $send
+                    echo -e "*📙 *В сегодняшнем списке нет новых заблокированых наборов адресов!*  $errorping" > $send
                 fi
                 "$jsdir/exec.sh" send && sleep 1
             else
@@ -261,10 +261,10 @@ if [ "$isbanip" = true ]; then
             cat $shdir/msgbuff/banip/0xaa >> $send && "$jsdir/exec.sh" sendembed
             sleep 1
             if [ "$sources" = "antifilter" ]; then
-                echo -e '**:orange_circle: Заблокировано IP адресов: __'$banipcount'__!**\n:x: Всего заблокировано: __'$totalipbanned'__' > $send
+                echo -e '**🟠 Заблокировано IP адресов: __'$banipcount'__!**\n❌ Всего заблокировано: __'$totalipbanned'__' > $send
             fi
             if [ "$sources" = "github" ]; then
-                echo -e '**:orange_circle: Обновлено CIDR записей: __'$banipcount'__ !**\n:x: Всего заблокировано: __'$totalipbanned'__' > $send
+                echo -e '**🟠 Обновлено CIDR записей: __'$banipcount'__ !**\n❌ Всего заблокировано: __'$totalipbanned'__' > $send
             fi
             "$jsdir/exec.sh" send && sleep 1
         fi
@@ -286,10 +286,10 @@ if [ "$isunbanip" = true ]; then
         if [ "$unbanipbytes" -le "2" ]; then
             if [ "$errorsend" = true ]; then
                 if [ "$sources" = "antifilter" ]; then
-                    echo -e ":orange_book: *В сегодняшнем списке нет разблокированых IP адресов!*  $errorping" > $send
+                    echo -e "📙 *В сегодняшнем списке нет разблокированых IP адресов!*  $errorping" > $send
                 fi
                 if [ "$sources" = "github" ]; then
-                    echo -e ":orange_book: *В сегодняшнем списке нет разблокированых CIDR!*  $errorping" > $send
+                    echo -e "📙 *В сегодняшнем списке нет разблокированых CIDR!*  $errorping" > $send
                 fi
                 "$jsdir/exec.sh" send && sleep 1
             else
@@ -306,10 +306,10 @@ if [ "$isunbanip" = true ]; then
             echo "**$qdate**" >> $send
             cat $shdir/msgbuff/unbanip/0xaa >> $send && "$jsdir/exec.sh" sendembed && sleep 1
             if [ "$sources" = "antifilter" ]; then
-                echo -e '**:green_circle: Сегодня разблокировано __'$unbanipcount'__ IP адресов! :green_circle:**' > $send
+                echo -e '**🟢 Сегодня разблокировано __'$unbanipcount'__ IP адресов! 🟢**' > $send
             fi
             if [ "$sources" = "github" ]; then
-                echo -e '**:green_circle: Сегодня разблокировано __'$unbanipcount'__ CIDR! :green_circle:**' > $send
+                echo -e '**🟢 Сегодня разблокировано __'$unbanipcount'__ CIDR! 🟢**' > $send
             fi
             "$jsdir/exec.sh" send && sleep 1
         fi

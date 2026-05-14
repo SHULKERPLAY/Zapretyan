@@ -50,7 +50,7 @@ last_run_state=""
 
 while true
 do
-    # Comlile in sinle string: Mon/12/05/2026/1845
+    # Compile in sinle string: Mon/12/05/2026/1845
     # %a - Weekday (Mon), %d - Day (12), %m - Month (05), %Y - Year (2026), %H%M - Time HourMinute (1845)
     current_state=$(date "+%a/%d/%m/%Y/%H%M")
 

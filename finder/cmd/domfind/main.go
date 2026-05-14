@@ -22,7 +22,7 @@ import (
 
 func main() {
 	// Default params
-	daemon.Params.Ver = "1.1.0"
+	daemon.Params.Ver = "1.2.0"
 	daemon.Params.Minlength = 5
 	daemon.Params.Maxlength = 255
 	daemon.Params.SockPath = "/tmp/domfind.sock"
@@ -131,7 +131,7 @@ func domfind(conn net.Conn) {
 	case <-ctx.Done():
 		//Timeout!
 		slog.Error("Timeout while completing request", "command", command)
-		conn.Write([]byte(":red_circle: ERROR: Context timeout\n"))
+		conn.Write([]byte("🔴 ERROR: Context timeout\n"))
 	}
 	slog.Info("Response sent succesfully")
 }
@@ -149,17 +149,23 @@ func domfindProcess(mode string, query string) string {
 		slog.Debug("Sending", "mode", mode, "query", query, "to", "processDomain()")
 		return finder.ProcessDomain(query)
 	case "geodomain":
-		if daemon.Params.Nommdb { return ":no_entry_sign: Сервисы GeoLite недоступны в данный момент." }
+		if daemon.Params.Nommdb {
+			return "🚫 Сервисы GeoLite недоступны в данный момент."
+		}
 		slog.Info("Trying to resolve GeoDomain", "q", query)
 		res := resolve.ResolveOne(query)
-		if res == "" { return fmt.Sprintf(":x: Не удалось зарезолвить адрес по запросу `%s`!", query)}
+		if res == "" {
+			return fmt.Sprintf("❌ Не удалось зарезолвить адрес по запросу `%s`!", query)
+		}
 		slog.Debug("Sending", "mode", mode, "query", query, "ip", res, "to", "ProcessGeoLite()")
 		return finder.ProcessGeoLite(res)
 	case "geoip":
-		if daemon.Params.Nommdb { return ":no_entry_sign: Сервисы GeoLite недоступны в данный момент." }
+		if daemon.Params.Nommdb {
+			return "🚫 Сервисы GeoLite недоступны в данный момент."
+		}
 		slog.Debug("Sending", "mode", mode, "query", query, "to", "ProcessGeoLite()")
 		return finder.ProcessGeoLite(query)
 	}
 	slog.Error("GOT WRONG", "mode", mode)
-	return ":red_circle: Internal err: Wrong mode type"
+	return "🔴 Internal err: Wrong mode type"
 }

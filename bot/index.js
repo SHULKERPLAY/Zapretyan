@@ -1,6 +1,6 @@
 // Since 1.4.101.x core can be started only by shard manager
 
-const corever = 'v1.4.101.18';
+const corever = 'v1.4.101.20';
 const forbiddenChars = /['",;<>?!@#$%^&*(){}|\[\]\/\\]/;
 
 const fs = require('node:fs');
@@ -200,7 +200,7 @@ async function fbancheck(interaction, publicreplylog) {
     const search = interaction.options.getString('string');
     //test for bad characters
     if (forbiddenChars.test(search)) {
-        const replycontent = `:warning: **В запросе запрещено использовать специальные символы!**`
+        const replycontent = `⚠️ **В запросе запрещено использовать специальные символы!**`
         return await interactioneditreply(interaction, replycontent);
     }
     let mode;
@@ -235,10 +235,10 @@ async function fbancheck(interaction, publicreplylog) {
         domaindata = await bancheckDaemon(search, mode);
     } catch (err) {
         console.error('Bancheck Daemon error:', err.message);
-        domaindata = `:red_circle: Внутренняя ошибка. ${err.message}`
+        domaindata = `🔴 Внутренняя ошибка. ${err.message}`
     }
     //Operator || counts undefined, null, 0, false and empty line as bad. While operator ?? counts as bad only undefined and null
-    const replycontent = domaindata || `:warning: *Ошибка сервера. Обратитесь к администратору бота. Код: undefined_reply*`
+    const replycontent = domaindata || `⚠️ *Ошибка сервера. Обратитесь к администратору бота. Код: undefined_reply*`
     interactioneditreply(interaction, replycontent);
 }
 
@@ -248,7 +248,7 @@ async function fdig(interaction, publicreplylog) {
     const domain = interaction.options.getString('string');
     //test for bad characters
     if (forbiddenChars.test(domain)) {
-        const replycontent = `:warning: **В запросе запрещено использовать специальные символы!**`
+        const replycontent = `⚠️ **В запросе запрещено использовать специальные символы!**`
         return await interactioneditreply(interaction, replycontent);
     }
     console.log(`DNS Search: ${type} ${domain} ${publicreplylog}`)
@@ -296,20 +296,20 @@ client.on('interactionCreate', async (interaction) => {
     //check if reply be ephemeral
     let { publicreplylog, isephemeral } = await checkephemeral(interaction);
     if (interaction.commandName === 'ping') {
-        const replycontent = `:ping_pong: *Понг!* Задержка ${Date.now() - interaction.createdTimestamp} миллисекунд! Задержка API ${Math.round(client.ws.ping)} миллисекунд.`
+        const replycontent = `🏓 *Понг!* Задержка ${Date.now() - interaction.createdTimestamp} миллисекунд! Задержка API ${Math.round(client.ws.ping)} миллисекунд.`
         await interactionreply(interaction, replycontent, true);
         shardStat('pingcmd');
     } else if (interaction.commandName === 'about') {
         shardStat('aboutcmd');
-        const replycontent = `:blue_heart: Помогаю с поисками блокировок из нескольких источников! Начните поиск с помощью команды **/bancheck**.\nИщите IP адрес и записи сайта при помощи **/dig**!\nПригласите на свой сервер с помощью **/invite**.\nСтатистику по блокировкам сегодня можно посмотреть с помощью **/total**.\n\n🔮 **БОЛЬШОЕ ОБНОВЛЕНИЕ:**\n- Теперь Запретян отдаёт ещё больше информации при поиске IP адреса или полного имени сайта!\n- С новой командой \`/who\` вы можете узнать страну сайта или IP, а также его провайдера (10 раз в час)!\n\n:speech_left: Бот Запретян работает на базе https://github.com/SHULKERPLAY/Zapretyan (Оригинальная: \`Zapretyan#2802\`).\n:dizzy: *Версия ядра: ${corever}*\n:grey_question: Есть вопросы? [Посмотрите FAQ на Github](https://github.com/SHULKERPLAY/Zapretyan/wiki/%D0%A7%D0%B0%D1%81%D1%82%D0%BE-%D0%B7%D0%B0%D0%B4%D0%B0%D0%B2%D0%B0%D0%B5%D0%BC%D1%8B%D0%B5-%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B) или [на нашем сайте!](https://lunarcreators.ru/zapretyan/app/) \n:gift_heart: [Сервер поддержки](https://discord.gg/e2HcXrQ) - <@459657842895486977> \n\n-# [Условия использования](https://lunarcreators.ru/zapretyan/app/tos/) и [Политика Конфиденциальности](https://lunarcreators.ru/zapretyan/app/privacy/)`
+        const replycontent = `💙 Помогаю с поисками блокировок из нескольких источников! Начните поиск с помощью команды **/bancheck**.\nИщите IP адрес и записи сайта при помощи **/dig**!\nПригласите на свой сервер с помощью **/invite**.\nСтатистику по блокировкам сегодня можно посмотреть с помощью **/total**.\n\n🔮 **БОЛЬШОЕ ОБНОВЛЕНИЕ:**\n- Теперь Запретян отдаёт ещё больше информации при поиске IP адреса или полного имени сайта!\n- С новой командой \`/who\` вы можете узнать страну сайта или IP, а также его провайдера (10 раз в час)!\n\n:speech_left: Бот Запретян работает на базе https://github.com/SHULKERPLAY/Zapretyan (Оригинальная: \`Zapretyan#2802\`).\n💫 *Версия ядра: ${corever}*\n❔ Есть вопросы? [Посмотрите FAQ на Github](https://github.com/SHULKERPLAY/Zapretyan/wiki/%D0%A7%D0%B0%D1%81%D1%82%D0%BE-%D0%B7%D0%B0%D0%B4%D0%B0%D0%B2%D0%B0%D0%B5%D0%BC%D1%8B%D0%B5-%D0%B2%D0%BE%D0%BF%D1%80%D0%BE%D1%81%D1%8B) или [на нашем сайте!](https://lunarcreators.ru/zapretyan/app/) \n💝 [Сервер поддержки](https://discord.gg/e2HcXrQ) - <@459657842895486977> \n\n-# [Условия использования](https://lunarcreators.ru/zapretyan/app/tos/) и [Политика Конфиденциальности](https://lunarcreators.ru/zapretyan/app/privacy/)`
         await interactionreply(interaction, replycontent, true, null, true);
     } else if (interaction.commandName === 'invite') {
         shardStat('invitecmd');
-        const replycontent = `:gift_heart: [Нажмите для добавления бота на сервер](https://discord.com/oauth2/authorize?client_id=907372459144147035&permissions=277025410048&integration_type=0&scope=bot) или [Добавьте через магазин приложений на сервер или как личное приложение](https://discord.com/discovery/applications/907372459144147035)! \n*Установка в свои приложения даёт доступ к функциям поиска запретян в любом чате сервера и ЛС.* \n\n:bangbang: *Это **НЕ рассылки**! На вашем сервере будут доступны слеш-команды для поиска по реестру РКН. Для реализации ежедневных рассылок для вашего сервера свяжитесь с разработчиком.*`
+        const replycontent = `💝 [Нажмите для добавления бота на сервер](https://discord.com/oauth2/authorize?client_id=907372459144147035&permissions=277025410048&integration_type=0&scope=bot) или [Добавьте через магазин приложений на сервер или как личное приложение](https://discord.com/discovery/applications/907372459144147035)! \n*Установка в свои приложения даёт доступ к функциям поиска запретян в любом чате сервера и ЛС.* \n\n‼️ *Это **НЕ рассылки**! На вашем сервере будут доступны слеш-команды для поиска по реестру РКН. Для реализации ежедневных рассылок для вашего сервера свяжитесь с разработчиком.*`
         await interactionreply(interaction, replycontent, true, null, true);
     } else if (interaction.commandName === 'total') {
         shardStat('totalcmd');
-        const replycontent = `**__ДОМЕНЫ__**\n:fire: Сегодня заблокировано: __${banstats.todayban}__\n:large_blue_diamond: Сегодня разблокировано: __${banstats.todayunban}__\n:no_entry_sign: **Всего заблокировано: ${banstats.totalban}**\n\n**__IP АДРЕСА__**\n:orange_circle: Сегодня заблокировано: __${banstats.todayipban}__\n:green_circle: Сегодня разблокировано: __${banstats.todayipunban}__\n:x: **Всего заблокировано: ${banstats.totalipban}**`
+        const replycontent = `**__ДОМЕНЫ__**\n🔥 Сегодня заблокировано: __${banstats.todayban}__\n🔷 Сегодня разблокировано: __${banstats.todayunban}__\n🚫 **Всего заблокировано: ${banstats.totalban}**\n\n**__IP АДРЕСА__**\n🟠 Сегодня заблокировано: __${banstats.todayipban}__\n🟢 Сегодня разблокировано: __${banstats.todayipunban}__\n❌ **Всего заблокировано: ${banstats.totalipban}**`
         await interactionreply(interaction, replycontent, isephemeral);
         console.log(`/total used ${publicreplylog}`)
     } else if(interaction.commandName === 'bancheck') {
