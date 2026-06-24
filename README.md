@@ -1,7 +1,15 @@
 ![Запретян <3](https://github.com/SHULKERPLAY/Zapretyan/blob/main/zapretyanrepo.webp)
-> Readme is only available in russian
 
-> Обновления репозитория вскоре могут быть приостановлены
+> [!TIP]
+> В этом репозитории есть несколько шороховатостей, но те, кто посчитает этот скрипт достойным найдут ему применение.
+>
+> **Весь функционал и даже больше чем это, с меньшим весом, большей совместимостью между разными системами и отсутствием зависимостей [доступен в новой Запретян-Go](https://github.com/SHULKERPLAY/Zapretyan-Go) с включенными плагинами [`Daily Statistics`](https://github.com/SHULKERPLAY/Zapretyan-Go/tree/main/extensions/dailystat) и [`Discord Sender`](https://github.com/SHULKERPLAY/Zapretyan-Go/tree/main/extensions/discord-sender)!**
+>
+> [Запретян-Go это полноценное консольное кроссплатформенное приложение с собственной системой кастомных плагинов!](https://github.com/SHULKERPLAY/Zapretyan-Go)
+>
+> Обновления Discord-бота и модуля Domain Matcher останутся в этом репозитории. С этим коммитом стала доступна финальная редакция с последними аналитическими данными по блокировкам. С этого момента статистика считается в новом ядре с обновлённой моделью - `AnalyticsV2`.
+>
+> Спасибо всем, кто следил и продолжает следить за Запретян.
 
 **Теперь можно пользоваться поиском блокировок интернет ресурсов в РФ из Discord с помощью нашего бота Запретян! (Оригинальная: Zapretyan#2802)** [Посмотрите подробности](https://lunarcreators.ru/zapretyan/app/) или [установите бота на любой свой сервер или к себе на аккаунт из магазина приложений](https://discord.com/discovery/applications/907372459144147035)! *Бота также можно [установить на сервер напрямую](https://discord.com/oauth2/authorize?client_id=907372459144147035&permissions=277025410048&integration_type=0&scope=bot)*
 
