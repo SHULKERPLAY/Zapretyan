@@ -1,3 +1,8 @@
+> [!CAUTION]
+> **Репозиторий запретян заморожен и является архивом.**
+> - Функционал перенесён в [Запретян-Go](https://github.com/SHULKERPLAY/Zapretyan-Go) с включенными плагинами [`Daily Statistics`](https://github.com/SHULKERPLAY/Zapretyan-Go/tree/main/extensions/dailystat) и [`Discord Sender`](https://github.com/SHULKERPLAY/Zapretyan-Go/tree/main/extensions/discord-sender)!
+> - Все запросы, PR, исходный код и прочее касаемо Discord бота Запретян вынесено в [отдельный репозиторий](https://github.com/Lunar-Creators/discord-zapretyan)
+
 ![Запретян <3](https://github.com/SHULKERPLAY/Zapretyan/blob/main/zapretyanrepo.webp)
 
 > [!TIP]
@@ -6,22 +11,18 @@
 > **Весь функционал и даже больше чем это, с меньшим весом, большей совместимостью между разными системами и отсутствием зависимостей [доступен в новой Запретян-Go](https://github.com/SHULKERPLAY/Zapretyan-Go) с включенными плагинами [`Daily Statistics`](https://github.com/SHULKERPLAY/Zapretyan-Go/tree/main/extensions/dailystat) и [`Discord Sender`](https://github.com/SHULKERPLAY/Zapretyan-Go/tree/main/extensions/discord-sender)!**
 >
 > [Запретян-Go это полноценное консольное кроссплатформенное приложение с собственной системой кастомных плагинов!](https://github.com/SHULKERPLAY/Zapretyan-Go)
->
-> Обновления Discord-бота и модуля Domain Matcher останутся в этом репозитории. С этим коммитом стала доступна финальная редакция с последними аналитическими данными по блокировкам. С этого момента статистика считается в новом ядре с обновлённой моделью - `AnalyticsV2`.
->
-> Спасибо всем, кто следил и продолжает следить за Запретян.
 
 **Теперь можно пользоваться поиском блокировок интернет ресурсов в РФ из Discord с помощью нашего бота Запретян! (Оригинальная: Zapretyan#2802)** [Посмотрите подробности](https://lunarcreators.ru/zapretyan/app/) или [установите бота на любой свой сервер или к себе на аккаунт из магазина приложений](https://discord.com/discovery/applications/907372459144147035)! *Бота также можно [установить на сервер напрямую](https://discord.com/oauth2/authorize?client_id=907372459144147035&permissions=277025410048&integration_type=0&scope=bot)*
 
 # Запретян / Zapretyan
-[![CodeFactor](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/badge/main)](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/overview/main) ![GitHub Release](https://img.shields.io/github/v/release/shulkerplay/zapretyan) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/shulkerplay/zapretyan) ![Discord](https://img.shields.io/discord/683814496942424078?label=Discord) ![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UCWoypHEOaTh6N9zwCtRzr0w) ![Website](https://img.shields.io/website?url=https%3A%2F%2Flunarcreators.ru&link=https%3A%2F%2Flunarcreators.ru)
+[![CodeFactor](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/badge/main)](https://www.codefactor.io/repository/github/shulkerplay/zapretyan/overview/main) ![GitHub Release](https://img.shields.io/github/v/release/shulkerplay/zapretyan) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/shulkerplay/zapretyan) ![Discord](https://img.shields.io/discord/683814496942424078?label=Discord) ![Website](https://img.shields.io/website?url=https%3A%2F%2Flunarcreators.ru&link=https%3A%2F%2Flunarcreators.ru)
 ![Bot Uptime (30 days)](https://img.shields.io/uptimerobot/ratio/m797417008-25ccd350ca5e2f9624767928?link=m797417008-25ccd350ca5e2f9624767928)
 
 **Вывод новых блокировок ресурсов в Российской Федерации каждый день!**  
 
 Запретян - это набор скриптов работающий на Debian/Ubuntu, который собирает данные о блокировках интернет ресурсов в РФ и каждый день подробно (или кратко в цифрах) сообщает о изменениях в реестре блокировок за день в Discord с помощью Discord бота!
 
-Запретян создана **для работы с Discord ботом**. Существует [упрощенная версия](https://github.com/SHULKERPLAY/Zapretyan-Lite), посылающаяя сообщения через вебхуки.
+Запретян создана **для работы с Discord ботом**. Существует [упрощенная версия](https://github.com/SHULKERPLAY/Zapretyan-Lite) (АРХИВ), посылающаяя сообщения через вебхуки.
 
  - [Функции](#%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%B8)
  - [Зависимости](#%D0%B7%D0%B0%D0%B2%D0%B8%D1%81%D0%B8%D0%BC%D0%BE%D1%81%D1%82%D0%B8)
@@ -497,6 +498,7 @@
  - [Страница Запретян на нашем сайте](https://lunarcreators.ru/zapretyan)
  - [Страница приложения Запретян на нашем сайте](https://lunarcreators.ru/zapretyan/app)
  - [Бот Запретян в магазине приложений Discord](https://discord.com/discovery/applications/907372459144147035)
- - [Запретян Лайт!](https://github.com/SHULKERPLAY/Zapretyan-Lite)
+ - [Репозиторий бота Запретян](https://github.com/Lunar-Creators/discord-zapretyan)
+ - [Запретян Лайт!](https://github.com/SHULKERPLAY/Zapretyan-Lite) (АРХИВ)
 
 Буду рад любой поддержке, связаться со мной можно на [нашем сервере Discord](https://discord.gg/e2HcXrQ)
